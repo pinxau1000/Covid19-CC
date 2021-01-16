@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <AppBar/>
+    <AppBar app-bar-title="JTEK"/>
 
     <v-main>
       <Body/>
@@ -23,9 +23,7 @@ export default {
     Body
   },
   data: () => ({
-    companyName: "JTEK",
-    drawer: false,
-    group: null,
+    companyName: "JTEK"
   })
 };
 </script>
