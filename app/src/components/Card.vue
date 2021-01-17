@@ -49,16 +49,16 @@ export default {
   },
   computed: {
     warningColor: function (){
-      if (this.card.current > Math.floor(this.card.total * 0.8)){
+      if (this.card.current > Math.floor(this.card.total * 0.95)){
         return "red lighten-4";
       }
-      if (this.card.current > Math.floor(this.card.total * 0.6)){
+      if (this.card.current > Math.floor(this.card.total * 0.9)){
         return "orange lighten-4";
       }
-      if (this.card.current > Math.floor(this.card.total * 0.4)){
+      if (this.card.current > Math.floor(this.card.total * 0.8)){
         return "amber lighten-4";
       }
-      if (this.card.current > Math.floor(this.card.total * 0.2)){
+      if (this.card.current > Math.floor(this.card.total * 0.7)){
         return "yellow lighten-4";
       }
       return "light-green lighten-4";
@@ -68,7 +68,7 @@ export default {
     openSettings: function () {
       // always use kebab-case for event names!
       // (https://vuejs.org/v2/guide/components-custom-events.html)
-      this.$emit("RandomName", this.card)
+      this.$emit("open-child-settings", this.card)
       console.log("event")
     }
   }

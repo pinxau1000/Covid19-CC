@@ -1,8 +1,8 @@
 <template>
   <v-main>
     <v-container>
-      <CardSettings @RandomName="callbackMethod"/>
-      <v-row class="text-justify">
+      <CardSettings/>
+      <v-row class="text-justify"  @open-child-settings="callbackMethod($event)">
           <Card
               v-for="card in cards"
               :key="card.id"
@@ -112,23 +112,23 @@
           },
           {
             id: "80f28ec0-e849-4a82-8b02-a6ce884ee222",
-            title: "Sala A.1.12",
+            title: "Room",
             current: 2,
             total: 35,
             items: [
               {
                 icon: "mdi-door",
-                name: "Entrada",
+                name: "In",
                 value: 2
               },
               {
                 icon: "mdi-door",
-                name: "Saída",
+                name: "Out",
                 value: 0
               },
               {
                 icon: "mdi-toggle-switch",
-                name: "Desinfetante",
+                name: "Actuator",
                 action: "switch",
                 value: "drain-ethanol-1425"
               }
@@ -138,13 +138,13 @@
     }),
     props: {
       settingsDialog: Boolean,
-      tempCard: Object
+      my_prop: Object
     },
     methods: {
-      callbackMethod: function (card){
+      callbackMethod: function (card) {
         console.log("callback")
         this.settingsDialog  = true;
-        this.tempCard = card;
+        this.my_prop = card;
       }
     }
   }
