@@ -2,15 +2,15 @@
     <v-row>
       <v-col class="col-sm-1">
         <v-icon small>
-          {{ icon }}
+          {{ item.icon }}
         </v-icon>
       </v-col>
       <v-col class="col-sm-7 text-center">
-        {{ name }}
+        {{ item.name }}
       </v-col>
       <v-col class="col-sm- text-right">
-        <template v-if="action!=='switch'">
-          {{ value }}
+        <template v-if="item.action!=='switch'">
+          {{ item.value }}
         </template>
         <template v-else>
           <v-btn color="primary"
@@ -29,10 +29,7 @@
 export default {
   name: "CardItem",
   props: {
-    icon: String,
-    name: String,
-    action: String,
-    value: [Number, String]
+    item: Object
   }
 }
 </script>

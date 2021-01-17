@@ -1,15 +1,12 @@
 <template>
   <v-main>
     <v-container>
+      <CardSettings @RandomName="callbackMethod"/>
       <v-row class="text-justify">
           <Card
               v-for="card in cards"
               :key="card.id"
-              :icon="card.icon"
-              :title="card.title"
-              :current="card.current"
-              :total="card.total"
-              :items="card.items"
+              :card="card"
           />
       </v-row>
     </v-container>
@@ -19,10 +16,13 @@
 
 <script>
   import Card from "@/components/Card";
+  import CardSettings from "@/components/CardSettings";
+
   export default {
     name: 'Body',
     components: {
-      Card
+      Card,
+      CardSettings
     },
     data: () => ({
       cards: [
@@ -135,7 +135,18 @@
             ]
           }
         ]
-    })
+    }),
+    props: {
+      settingsDialog: Boolean,
+      tempCard: Object
+    },
+    methods: {
+      callbackMethod: function (card){
+        console.log("callback")
+        this.settingsDialog  = true;
+        this.tempCard = card;
+      }
+    }
   }
 </script>
 
