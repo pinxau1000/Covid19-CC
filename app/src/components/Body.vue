@@ -1,12 +1,20 @@
 <template>
   <v-main>
     <v-container>
-      <CardSettings/>
-      <v-row class="text-justify"  @open-child-settings="callbackMethod($event)">
+      <!--
+      settingsDialog will be updated on the event update:settings-dialog with
+      the value passed meaning that's the same as using
+      v-on:update:settings-dialog and v-bind:show="settingsDialog" or
+      v-bind:settingsDialog.sync="settingsDialog":
+      <CardSettings v-bind:settingsDialog.sync="settingsDialog"/>
+      -->
+      <CardSettings v-model="settingsDialog"/>
+      <v-row class="text-justify">
           <Card
               v-for="card in cards"
               :key="card.id"
               :card="card"
+              @open-card-settings="openCardSettingsHandle($event)"
           />
       </v-row>
     </v-container>
@@ -134,17 +142,14 @@
               }
             ]
           }
-        ]
+        ],
+      settingsDialog: false,
+      tempCard: undefined
     }),
-    props: {
-      settingsDialog: Boolean,
-      my_prop: Object
-    },
     methods: {
-      callbackMethod: function (card) {
-        console.log("callback")
+      openCardSettingsHandle: function (card) {
         this.settingsDialog  = true;
-        this.my_prop = card;
+        this.tempCard = card;
       }
     }
   }

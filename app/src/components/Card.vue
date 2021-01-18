@@ -11,7 +11,7 @@
                   icon
                   small
                   elevation="1"
-                  @click="openSettings"
+                  @click="emitOpenSettings"
               >
                 <v-icon>
                   mdi-dots-vertical
@@ -65,11 +65,10 @@ export default {
     }
   },
   methods: {
-    openSettings: function () {
+    emitOpenSettings: function () {
       // always use kebab-case for event names!
       // (https://vuejs.org/v2/guide/components-custom-events.html)
-      this.$emit("open-child-settings", this.card)
-      console.log("event")
+      this.$emit("open-card-settings", this.card)
     }
   }
 }
