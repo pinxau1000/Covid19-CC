@@ -9,31 +9,16 @@
         {{ item.name }}
       </v-col>
       <v-col class="col-sm- text-right">
-        <template v-if="item.action!=='switch'">
-          {{ item.value }}
-        </template>
-        <template v-else>
-          <v-btn color="primary"
-                 elevation="2"
-                 icon
-                 small
-          >
-            <v-icon>mdi-power</v-icon>
-          </v-btn>
-        </template>
+        {{ item.value }}
       </v-col>
     </v-row>
 </template>
 
 <script>
 export default {
-  name: "CardItem",
+  name: "ZoneItem",
   props: {
     item: Object
   }
 }
 </script>
-
-<style scoped>
-
-</style>

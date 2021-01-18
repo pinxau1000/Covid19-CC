@@ -11,7 +11,7 @@
                   icon
                   small
                   elevation="1"
-                  @click="emitOpenSettings"
+                  @click.stop="openZoneSettingsDialog"
               >
                 <v-icon>
                   mdi-dots-vertical
@@ -19,15 +19,15 @@
               </v-btn>
           </v-col>
           <v-col class="col-7">
-            {{ card.title }}
+            {{ zone.title }}
           </v-col>
           <v-col class="col- text-right">
-            {{ card.current }} / {{ card.total }}
+            {{ zone.current }} / {{ zone.total }}
           </v-col>
         </v-row>
       </v-card-title>
       <v-card-text>
-        <CardItem v-for="item in card.items"
+        <ZoneItem v-for="item in zone.items"
                   v-bind:key="item.id"
                   v-bind:item="item"
         />
@@ -37,38 +37,38 @@
 </template>
 
 <script>
-import CardItem from "@/components/CardItem";
+import ZoneItem from "@/components/ZoneItem";
 
 export default {
-  name: "Card",
+  name: "Zone",
   components: {
-    CardItem
+    ZoneItem
   },
   props: {
-    card: Object
+    zone: Object
   },
   computed: {
     warningColor: function (){
-      if (this.card.current > Math.floor(this.card.total * 0.95)){
+      if (this.zone.current > Math.floor(this.zone.total * 0.95)){
         return "red lighten-4";
       }
-      if (this.card.current > Math.floor(this.card.total * 0.9)){
+      if (this.zone.current > Math.floor(this.zone.total * 0.9)){
         return "orange lighten-4";
       }
-      if (this.card.current > Math.floor(this.card.total * 0.8)){
+      if (this.zone.current > Math.floor(this.zone.total * 0.8)){
         return "amber lighten-4";
       }
-      if (this.card.current > Math.floor(this.card.total * 0.7)){
+      if (this.zone.current > Math.floor(this.zone.total * 0.7)){
         return "yellow lighten-4";
       }
       return "light-green lighten-4";
     }
   },
   methods: {
-    emitOpenSettings: function () {
+    openZoneSettingsDialog: function () {
       // always use kebab-case for event names!
       // (https://vuejs.org/v2/guide/components-custom-events.html)
-      this.$emit("open-card-settings", this.card);
+      this.$emit("open-zone-settings-dialog", this.zone);
     }
   }
 }

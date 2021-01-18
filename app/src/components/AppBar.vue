@@ -8,15 +8,15 @@
     >
       <v-app-bar-nav-icon></v-app-bar-nav-icon>
 
-      <v-toolbar-title>{{ appBarTitle }}</v-toolbar-title>
+      <v-toolbar-title>{{ title }}</v-toolbar-title>
 
       <v-spacer></v-spacer>
 
-      <v-btn icon v-on:click="searchCards">
+      <v-btn icon v-on:click="searchZone">
         <v-icon>mdi-magnify</v-icon>
       </v-btn>
 
-      <v-btn icon v-on:click="addCard">
+      <v-btn icon v-on:click="addZone">
         <v-icon>mdi-plus</v-icon>
       </v-btn>
 
@@ -27,18 +27,23 @@
 </template>
 
 <script>
+
+function searchZone(){
+  console.log("TODO: Search");
+}
+
+function addZone() {
+  console.log("TODO: Add");
+}
+
 export default {
   name: "AppBar",
   props: {
-    appBarTitle: String
+    title: String
   },
   methods: {
-    searchCards: function (){
-      console.log("TODO: Search");
-    },
-    addCard: function () {
-      console.log("TODO: Add");
-    }
+    searchZone,
+    addZone
   }
 }
 </script>
