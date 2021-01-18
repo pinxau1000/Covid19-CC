@@ -68,7 +68,7 @@ export default {
     emitOpenSettings: function () {
       // always use kebab-case for event names!
       // (https://vuejs.org/v2/guide/components-custom-events.html)
-      this.$emit("open-card-settings", this.card)
+      this.$emit("open-card-settings", this.card);
     }
   }
 }

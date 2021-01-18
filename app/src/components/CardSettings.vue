@@ -44,13 +44,13 @@ export default {
     show: Boolean,
     card: Object
   },
-  model:{
+  model: {
     prop: "show",
-    event: "update:settings-dialog"
+    event: "card-settings"
   },
   methods: {
     closeSettingsDialog: function (){
-      this.$emit("update:settings-dialog", false);
+      this.$emit("card-settings", false);
     }
   }
 }

@@ -7,8 +7,16 @@
       v-on:update:settings-dialog and v-bind:show="settingsDialog" or
       v-bind:settingsDialog.sync="settingsDialog":
       <CardSettings v-bind:settingsDialog.sync="settingsDialog"/>
+
+      Required that the property on the child has the same name as the
+      data in the parent.
+      <CardSettings v-bind:showCardSettingsDialog.sync="showCardSettingsDialog"/>
+
+      v-if prevent not wanted events
       -->
-      <CardSettings v-model="settingsDialog"/>
+      <CardSettings v-if="showCardSettingsDialog === true"
+                    v-model="showCardSettingsDialog"/>
+
       <v-row class="text-justify">
           <Card
               v-for="card in cards"
@@ -143,12 +151,12 @@
             ]
           }
         ],
-      settingsDialog: false,
+      showCardSettingsDialog: false,
       tempCard: undefined
     }),
     methods: {
       openCardSettingsHandle: function (card) {
-        this.settingsDialog  = true;
+        this.showCardSettingsDialog  = true;
         this.tempCard = card;
       }
     }
