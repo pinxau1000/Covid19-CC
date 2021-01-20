@@ -1,7 +1,7 @@
 <template>
   <v-main>
     <v-container>
-      <v-row class="text-justify">
+      <v-row class="justify-center">
           <!-- A Zone component is added for each zone in the zones array -->
           <Zone v-for="z in zones"
                 :key="z.id"

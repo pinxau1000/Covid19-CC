@@ -1,95 +1,157 @@
 <template>
+  <v-row justify="center">
     <v-dialog v-model="show"
               fullscreen
               persistent
               hide-overlay
               transition="dialog-bottom-transition"
     >
-      <v-toolbar dark
-                 color="primary"
-      >
-        <v-btn icon
-               dark
-               @click="dialog = false"
-        >
-          <v-icon>
-            mdi-close
-          </v-icon>
-        </v-btn>
-        <v-toolbar-title>
-          Settings
-        </v-toolbar-title>
-        <v-spacer/>
-        <v-toolbar-items>
-          <v-btn dark
-                 text
-                 @click="dialog = false"
-          >
-            Save
-          </v-btn>
-        </v-toolbar-items>
-      </v-toolbar>
       <v-card>
-        <v-card-title class="justify-center">
-          Settings
-        </v-card-title>
+        <v-toolbar dark
+                   color="primary"
+        >
+
+          <v-btn icon
+                 dark
+                 @click.stop="closeZoneSettingsDialog"
+          >
+            <v-icon> mdi-close </v-icon>
+          </v-btn>
+
+          <v-toolbar-title> Settings </v-toolbar-title>
+
+          <v-spacer/>
+
+          <v-toolbar-items>
+            <v-btn dark
+                   text
+                   @click.stop="closeZoneSettingsDialog"
+            >
+              Save
+            </v-btn>
+          </v-toolbar-items>
+        </v-toolbar>
+
         <v-card-text>
-          <v-text-field
-              label="Name"
-              :value="this.temporaryZone.title"
-          />
-          <v-text-field
-              label="Maximum Capacity"
-              :value="this.temporaryZone.total"
-          />
-          <v-text-field
-              label="Periodicity Doors"
-              :value="this.temporaryZone.periodicityDoors"
-          />
-          <v-text-field
-              label="Periodicity Leds"
-              :value="this.temporaryZone.periodicityLeds"
-          />
+          <v-row class="mt-4">
+            <v-col>
+              <v-text-field label="Name"
+                            :value="this.temporaryZone.name"
+              />
+            </v-col>
+          </v-row>
+
+          <v-row justify="space-between">
+            <v-col
+                class="text-subtitle-1 align-self-center col-auto"
+            >
+              Activated
+            </v-col>
+            <v-col class="col-auto" align-self="end">
+              <v-switch v-model="temporaryZone.enabled"
+                        color="primary"
+                        :label="this.temporaryZone.enabled.toString()"
+
+              />
+            </v-col>
+            <v-col class="col-12 col-sm">
+              <v-text-field label="Maximum Capacity"
+                            :value="this.temporaryZone.total"
+              />
+            </v-col>
+          </v-row>
+
+          <v-row class="mt-2">
+            <v-col class="col-12 col-sm-9 pb-0">
+              <v-slider v-model="temporaryZone.periodicityDoors"
+                        label="Periodicity Doors"
+                        thumb-label="always"
+                        thumb-size="24"
+                        min="1" :max="this.sliderMaxDoors"
+              />
+            </v-col>
+            <v-col class="col- pt-0">
+              <v-select v-model="currentUnitsDoors"
+                        :items="this.availableUnits"
+                        return-object
+                        dense
+                        @change="updateMaxUnitsDoor"
+              />
+            </v-col>
+          </v-row>
+
+          <v-row class="mt-4">
+            <v-col class="col-12 col-sm-9 pb-0">
+              <v-slider v-model="temporaryZone.periodicityLeds"
+                        label="Periodicity Leds"
+                        thumb-label="always"
+                        thumb-size="24"
+                        min="1" :max="this.sliderMaxLeds"
+              />
+            </v-col>
+            <v-col class="col- pt-0">
+              <v-select v-model="currentUnitsLeds"
+                        :items="this.availableUnits"
+                        return-object
+                        dense
+                        @change="updateMaxUnitsLeds"
+              />
+            </v-col>
+          </v-row>
         </v-card-text>
-        <v-card-actions>
-          <v-btn text
-                 elevation="2"
-                 @click.stop="closeZoneSettingsDialog(false)"
-          >
-            discard
-          </v-btn>
-          <v-btn text
-                 elevation="2"
-                 color="primary"
-                 @click.stop="closeZoneSettingsDialog(true)"
-          >
-            save
-          </v-btn>
-        </v-card-actions>
+
+        <v-divider/>
+
+        <v-sparkline :gradient="this.sparklineGradient"
+                     :value="sparklineValues"
+                     :smooth="true"
+                     auto-draw
+        />
+
       </v-card>
     </v-dialog>
+  </v-row>
 </template>
 
 <script>
-function pushData(){
-  console.log("TODO PushData")
+function setDefaultSliderMax(value) {
+  if (value > 3600){
+    return 24;
+  } else {
+    return 60;
+  }
 }
 
-/*
-setUpdateIntervalUnitsAndMax: function() {
-  if (this.temporaryZone.updateInterval > 3600) {
-    this.currentUpdateIntervalUnits = 'h';
-    this.maxUpdateInterval = 24;
-    return;
-  }
-  if (this.temporaryZone.updateInterval > 60) {
-    this.currentUpdateIntervalUnits = 'm';
+const _availableUnits = ["seconds", "minutes", "hours"];
+function setDefaultUnits(value) {
+  if (value > 3600){
+    return _availableUnits[2];
+  } else if (value > 60){
+    return _availableUnits[1];
   } else {
-    this.currentUpdateIntervalUnits = 's';
+    return _availableUnits[0];
   }
-  this.maxUpdateInterval = 60;
 }
-*/
+
+function updateSliderMax(units, value) {
+  let max = undefined;
+  if (units === _availableUnits[2]) {
+    max = 24;
+    if (value > 24) {
+      value = 24;
+    }
+  } else {
+    max = 60;
+  }
+  return [max, value]
+}
+
+const zoneColorsInvertedNoAlpha = [
+    "#F44336", "#FF5722", "#FF9800", "#FFC107",
+    "#FFEB3B", "#CDDC39", "#8BC34A", "#4CAF50",
+    "#4CAF50", "#4CAF50", "#4CAF50"
+];
+
 
 export default {
   name: "ZoneSettings",
@@ -98,16 +160,30 @@ export default {
   },
   data() {
     return {
-      show: Boolean
+      show: Boolean,
+      availableUnits: _availableUnits,
+      sliderMaxDoors: setDefaultSliderMax(this.temporaryZone.periodicityDoors),
+      sliderMaxLeds: setDefaultSliderMax(this.temporaryZone.periodicityLeds),
+      currentUnitsDoors: setDefaultUnits(this.temporaryZone.periodicityDoors),
+      currentUnitsLeds: setDefaultUnits(this.temporaryZone.periodicityLeds),
+      sparklineGradient: zoneColorsInvertedNoAlpha.reverse(),
+      sparklineValues: [0, 2, 5, 9, 5, 10, 3, 5, 0, 0, 1, 8, 2, 9, 0]
     }
   },
   methods: {
-    closeZoneSettingsDialog: function (save){
+    closeZoneSettingsDialog: function (){
       this.show = false;
       this.$emit("close-zone-settings-dialog")
-      if (save) {
-        pushData(this.temporaryZone);
-      }
+    },
+    updateMaxUnitsDoor: function(){
+      [this.sliderMaxDoors, this.temporaryZone.periodicityDoors] =
+          updateSliderMax(this.currentUnitsDoors,
+              this.temporaryZone.periodicityDoors)
+    },
+    updateMaxUnitsLeds: function(){
+      [this.sliderMaxLeds, this.temporaryZone.periodicityLeds] =
+          updateSliderMax(this.currentUnitsLeds,
+              this.temporaryZone.periodicityLeds)
     }
   }
 }

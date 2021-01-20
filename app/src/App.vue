@@ -21,121 +21,71 @@ export default {
     AppBar,
     Body
   },
-  data: () => ({
-    name: "Group Name",
-    zones: [
-      {
-        id: "b4b13f82-6c34-45b8-91e5-85b4c25ea2fc",
-        title: "Title One",
-        current: 1,
-        total: 10,
-        updateInterval: 59,
-        items: [
-          {
-            icon: "mdi-crown",
-            name: "This is the first item.",
-            value: 1
-          },
-          {
-            icon: "mdi-cat",
-            name: "This is the second item.",
-            value: 2
-          },
-          {
-            icon: "mdi-dog",
-            name: "This is the thrid item.",
-            value: 3
-          },
-          {
-            icon: "mdi-pig",
-            name: "This is the fourth item.",
-            value: 4
-          }
-        ]
-      },
-      {
-        id: "39eabb18-1597-41ef-9062-36dfc060ba01",
-        title: "My Notes",
-        current: 13,
-        total: 13,
-        updateInterval: 60,
-        items: [
-          {
-            icon: "mdi-plus",
-            name: "Test!",
-            value: 0
-          },
-          {
-            icon: "mdi-plus",
-            name: "This is a test!",
-            value: -5
-          },
-          {
-            icon: "mdi-plus",
-            name: "Hello! Hello!",
-            value: 300
-          },
-          {
-            icon: "mdi-plus",
-            name: "Foo Bar!",
-            value: 1000000000
-          }
-        ]
-      },
-      {
-        id: "50febbee-b78a-4a26-8dcf-872925779847",
-        title: "3rd Room",
-        current: -8,
-        total: 90,
-        updateInterval: 61,
-        items: [
-          {
-            icon: "mdi-plus",
-            name: "Entrada Norte",
-            value: 30
-          },
-          {
-            icon: "mdi-plus",
-            name: "Entrada Sul",
-            value: 2
-          },
-          {
-            icon: "mdi-plus",
-            name: "Saída Norte",
-            value: 60
-          },
-          {
-            icon: "mdi-plus",
-            name: "Dispensador",
-            value: 2
-          }
-        ]
-      },
-      {
-        id: "80f28ec0-e849-4a82-8b02-a6ce884ee222",
-        title: "Room",
-        current: 2,
-        total: 35,
-        updateInterval: 3601,
-        items: [
-          {
-            icon: "mdi-door",
-            name: "In",
-            value: 2
-          },
-          {
-            icon: "mdi-door",
-            name: "Out",
-            value: 0
-          },
-          {
-            icon: "mdi-toggle-switch",
-            name: "Actuator",
-            value: "30"
-          }
-        ]
+  data() {
+    return {
+      name: "Group Name",
+      zones: [
+        {
+          "id": "8b444b91-2d16-483f-bbc4-3741db4f35db",
+          "name": "Leiria Shopping",
+          "current": 1,
+          "total": 30,
+          "periodicityDoors": 5,
+          "periodicityLeds": 5,
+          "enabled": "true",
+          "items": [
+              {
+                  "id": "601af232-7c47-4751-af21-36b79b5999bc",
+                  "name": "Entrada Norte",
+                  "value": 3,
+                  "timestamp": 1611822803
+              },
+              {
+                  "id": "a9842da0-a4a1-4d69-b4a4-b29bf0b0457f",
+                  "name": "Saída Norte",
+                  "value": 2,
+                  "timestamp": 1611822803
+              },
+              {
+                  "id": "80981ae7-e627-44ac-bbb2-ec56407c8394",
+                  "name": "Desinfetante Norte",
+                  "value": 3,
+                  "timestamp": 1611822803
+              },
+              {
+                  "id": "3c84d14e-6940-4b10-a1d1-46c91b46b6b2",
+                  "name": "Led Norte",
+                  "value": "red",
+                  "timestamp": 1611822803
+              },
+              {
+                  "id": "5e9026c1-1d32-4e0e-ba20-204e88447a93",
+                  "name": "Entrada Sul",
+                  "value": 1,
+                  "timestamp": 1611822600
+              },
+              {
+                  "id": "a262e84b-0269-4710-86c5-fa46a687b4ab",
+                  "name": "Saída Sul",
+                  "value": 2,
+                  "timestamp": 1611822600
+              },
+              {
+                  "id": "fd4b7940-fd0b-47e3-8515-105ce9deebe4",
+                  "name": "Desinfetante Sul",
+                  "value": 1,
+                  "timestamp": 1611822600
+              },
+              {
+                  "id": "9e3a7b80-d86a-47b3-870a-f4715fdb6b58",
+                  "name": "Led Sul",
+                  "value": "green",
+                  "timestamp": 1611822600
+              }
+          ]
       }
-    ],
-  })
+      ]
+    }
+  }
 };
 </script>

@@ -1,8 +1,8 @@
 <template>
     <v-row>
-      <v-col class="col-sm-1">
+      <v-col class="col-sm-2">
         <v-icon small>
-          {{ item.icon }}
+          mdi-minus
         </v-icon>
       </v-col>
       <v-col class="col-sm-7 text-center">
