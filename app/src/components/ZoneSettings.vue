@@ -33,7 +33,7 @@
         </v-toolbar>
 
         <v-card-text>
-          <v-row class="mt-4">
+          <v-row class="mt-0">
             <v-col>
               <v-text-field label="Name"
                             :value="this.temporaryZone.name"
@@ -105,11 +105,9 @@
             <v-carousel-item v-for="item in this.temporaryZone.items"
                              :key="item.id"
             >
-              <v-row>
-                <v-card-subtitle>
-                  {{ item.name }}
-                </v-card-subtitle>
-              </v-row>
+              <v-card-subtitle class="title">
+                {{ item.name }}
+              </v-card-subtitle>
               <v-sheet color="transparent">
                 <v-sparkline :gradient="sparklineGradient"
                              :value="sparklineValues()"
