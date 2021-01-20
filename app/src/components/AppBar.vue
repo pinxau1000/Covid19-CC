@@ -6,27 +6,23 @@
         dark
         dense
     >
-      <v-row class="justify-space-between">
-        <v-col class="col-auto align-self-center justify-start">
-          <v-app-bar-nav-icon @click="globalSettings"></v-app-bar-nav-icon>
-        </v-col>
-        <v-col class="col-auto align-self-center  justify-start">
-          <v-toolbar-title>{{ title }}</v-toolbar-title>
-        </v-col>
-        <v-col class="col justify-end align-self-center">
-          <v-text-field v-model="searchQuery"
-                        dense rounded outlined filled single-line
-                        clearable
-                        clear-icon="mdi-close-circle"
-                        label="Search"
-                        :append-outer-icon="'mdi-magnify'"
-                        @click:append-outer="searchZones"
-                        @keypress.enter="searchZones"
-                        @click:clear="clearQuery"
-                        hide-details
-          />
-        </v-col>
-      </v-row>
+      <v-app-bar-nav-icon @click="globalSettings"></v-app-bar-nav-icon>
+
+      <v-toolbar-title class="mr-4 mr-sm-12">
+        {{ title }}
+      </v-toolbar-title>
+
+      <v-text-field v-model="searchQuery"
+                    dense rounded outlined filled single-line
+                    clearable
+                    clear-icon="mdi-close-circle"
+                    label="Search"
+                    :append-outer-icon="'mdi-magnify'"
+                    @click:append-outer="searchZones"
+                    @keypress.enter="searchZones"
+                    @click:clear="clearQuery"
+                    hide-details
+      />
     </v-app-bar>
 </template>
 

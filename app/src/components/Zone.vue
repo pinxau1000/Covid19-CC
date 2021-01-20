@@ -1,11 +1,13 @@
 <template>
-  <!-- 1 column per line on extra small devices; 2 columns per line on small
-  devices; 3 columns per line on medium size devices.-->
-    <v-col class="col-12 col-sm-6 col-md-4">
+  <!--
+  1 column per line on extra small devices; 2 columns per line on small
+  and medium size devices, 3 columns on large and 4 on extra large view ports.
+   -->
+    <v-col class="col-12 col-sm-6 col-lg-4 col-xl-3">
     <v-card v-bind:color="warningColor">
       <v-card-title>
-        <v-row>
-          <v-col class="col-2">
+        <v-row class="justify-space-between">
+          <v-col class="col-auto justify-start">
               <v-btn
                   color="primary"
                   icon
@@ -18,10 +20,10 @@
                 </v-icon>
               </v-btn>
           </v-col>
-          <v-col class="col-7">
+          <v-col class="col justify-center">
             {{ zone.name }}
           </v-col>
-          <v-col class="col- text-right">
+          <v-col class="col-auto text-right justify-end">
             {{ zone.current }} / {{ zone.total }}
           </v-col>
         </v-row>
