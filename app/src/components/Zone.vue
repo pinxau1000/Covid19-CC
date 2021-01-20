@@ -37,14 +37,7 @@
 
 <script>
 import ZoneItem from "@/components/ZoneItem";
-
-// https://stackoverflow.com/a/28481374/14643807
-const alpha = 40;
-const zoneColors = [
-          `#4CAF50${alpha}`, `#4CAF50${alpha}`, `#4CAF50${alpha}`, `#4CAF50${alpha}`,
-          `#8BC34A${alpha}`, `#CDDC39${alpha}`, `#FFEB3B${alpha}`, `#FFC107${alpha}`,
-          `#FF9800${alpha}`, `#FF5722${alpha}`, `#F44336${alpha}`, `#FF0000${alpha}`
-      ];
+import {zoneColorsAlpha} from "@/assets/zone.colors"
 
 export default {
   name: "Zone",
@@ -61,10 +54,10 @@ export default {
   computed: {
     warningColor: function (){
       let idx = Math.round(
-          this.zone.current*zoneColors.length/this.zone.total
+          this.zone.current*zoneColorsAlpha.length/this.zone.total
       );
-      return (idx >= zoneColors.length) ?
-          zoneColors[zoneColors.length-1] : zoneColors[idx];
+      return (idx >= zoneColorsAlpha.length) ?
+          zoneColorsAlpha[zoneColorsAlpha.length-1] : zoneColorsAlpha[idx];
 
       /*
       if (this.zone.current > Math.floor(this.zone.total * 0.95)){

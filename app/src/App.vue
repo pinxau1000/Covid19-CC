@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <AppBar :title="name"/>
+    <AppBar :title="title"/>
 
     <v-main>
       <Body :zones="zones"/>
@@ -15,77 +15,38 @@
 import Body from "@/components/Body";
 import AppBar from "@/components/AppBar";
 
+// Import Firebase Config (Already Initialized!)
+import firebase from "../firebase.config"
+
 export default {
   name: 'App',
+  firebase: {
+
+  },
   components: {
     AppBar,
     Body
   },
   data() {
     return {
-      name: "Group Name",
-      zones: [
-        {
-          "id": "8b444b91-2d16-483f-bbc4-3741db4f35db",
-          "name": "Leiria Shopping",
-          "current": 1,
-          "total": 30,
-          "periodicityDoors": 5,
-          "periodicityLeds": 5,
-          "enabled": "true",
-          "items": [
-              {
-                  "id": "601af232-7c47-4751-af21-36b79b5999bc",
-                  "name": "Entrada Norte",
-                  "value": 3,
-                  "timestamp": 1611822803
-              },
-              {
-                  "id": "a9842da0-a4a1-4d69-b4a4-b29bf0b0457f",
-                  "name": "Saída Norte",
-                  "value": 2,
-                  "timestamp": 1611822803
-              },
-              {
-                  "id": "80981ae7-e627-44ac-bbb2-ec56407c8394",
-                  "name": "Desinfetante Norte",
-                  "value": 3,
-                  "timestamp": 1611822803
-              },
-              {
-                  "id": "3c84d14e-6940-4b10-a1d1-46c91b46b6b2",
-                  "name": "Led Norte",
-                  "value": "red",
-                  "timestamp": 1611822803
-              },
-              {
-                  "id": "5e9026c1-1d32-4e0e-ba20-204e88447a93",
-                  "name": "Entrada Sul",
-                  "value": 1,
-                  "timestamp": 1611822600
-              },
-              {
-                  "id": "a262e84b-0269-4710-86c5-fa46a687b4ab",
-                  "name": "Saída Sul",
-                  "value": 2,
-                  "timestamp": 1611822600
-              },
-              {
-                  "id": "fd4b7940-fd0b-47e3-8515-105ce9deebe4",
-                  "name": "Desinfetante Sul",
-                  "value": 1,
-                  "timestamp": 1611822600
-              },
-              {
-                  "id": "9e3a7b80-d86a-47b3-870a-f4715fdb6b58",
-                  "name": "Led Sul",
-                  "value": "green",
-                  "timestamp": 1611822600
-              }
-          ]
-      }
-      ]
+      title: "$User",
+      zones: [{name: "test"}]
     }
+  },
+  mounted: function () {
+    let App = this;
+    this.$nextTick(function () {
+      // Get a reference to the database service
+      let database = firebase.database();
+      let baseRef = database.ref();
+      let _zones = []
+      baseRef.on("value",function(snapshot) {
+        snapshot.forEach(function (child){
+          _zones.push(child.toJSON())
+        })
+        App.zones = [_zones[0]];
+      });
+    })
   }
 };
 </script>

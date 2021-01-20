@@ -157,12 +157,7 @@ function updateSliderMax(units, value) {
   return [max, value]
 }
 
-const zoneColorsNoAlpha = [
-    "#4CAF50", "#4CAF50", "#4CAF50", "#4CAF50",
-    "#8BC34A", "#CDDC39", "#FFEB3B", "#FFC107",
-    "#FF9800", "#FF5722", "#F44336"
-];
-
+import {zoneColors} from "@/assets/zone.colors";
 
 export default {
   name: "ZoneSettings",
@@ -177,7 +172,7 @@ export default {
       sliderMaxLeds: setDefaultSliderMax(this.temporaryZone.periodicityLeds),
       currentUnitsDoors: setDefaultUnits(this.temporaryZone.periodicityDoors),
       currentUnitsLeds: setDefaultUnits(this.temporaryZone.periodicityLeds),
-      sparklineGradient: zoneColorsNoAlpha.reverse(),
+      sparklineGradient: zoneColors,
       carousel: 0,
       sparklineValues: function() {
         console.log("TODO Add items values!");
