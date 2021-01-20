@@ -24,11 +24,13 @@ import Zone from "@/components/Zone";
 import ZoneSettings from "@/components/ZoneSettings";
 
 function openZoneSettingsHandle(zone) {
+  console.log("DEBUG Body>openZoneSettingsHandle")
   this.showZoneSettingsDialog  = true;
   this.temporaryZone = zone;
 }
 
 function closeZoneSettingsHandle() {
+  console.log("DEBUG Body>closeZoneSettingsHandle")
   this.showZoneSettingsDialog  = false;
 }
 

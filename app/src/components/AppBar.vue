@@ -2,48 +2,57 @@
     <v-app-bar
         app
         absolute
-        color="blue lighten-1"
+        color="primary"
         dark
         dense
     >
-      <v-app-bar-nav-icon></v-app-bar-nav-icon>
-
-      <v-toolbar-title>{{ title }}</v-toolbar-title>
-
-      <v-spacer></v-spacer>
-
-      <v-btn icon v-on:click="searchZone">
-        <v-icon>mdi-magnify</v-icon>
-      </v-btn>
-
-      <v-btn icon v-on:click="addZone">
-        <v-icon>mdi-plus</v-icon>
-      </v-btn>
-
-      <v-btn icon>
-        <v-icon>mdi-dots-vertical</v-icon>
-      </v-btn>
+      <v-row class="justify-space-between">
+        <v-col class="col-auto align-self-center justify-start">
+          <v-app-bar-nav-icon @click="globalSettings"></v-app-bar-nav-icon>
+        </v-col>
+        <v-col class="col-auto align-self-center  justify-start">
+          <v-toolbar-title>{{ title }}</v-toolbar-title>
+        </v-col>
+        <v-col class="col justify-end align-self-center">
+          <v-text-field v-model="searchQuery"
+                        dense rounded outlined filled single-line
+                        clearable
+                        clear-icon="mdi-close-circle"
+                        label="Search"
+                        :append-outer-icon="'mdi-magnify'"
+                        @click:append-outer="searchZones"
+                        @keypress.enter="searchZones"
+                        @click:clear="clearQuery"
+                        hide-details
+          />
+        </v-col>
+      </v-row>
     </v-app-bar>
 </template>
 
 <script>
-
-function searchZone(){
-  console.log("TODO: Search");
-}
-
-function addZone() {
-  console.log("TODO: Add");
-}
 
 export default {
   name: "AppBar",
   props: {
     title: String
   },
+  data() {
+    return {
+      searchQuery: ""
+    }
+  },
   methods: {
-    searchZone,
-    addZone
+    globalSettings: function() {
+      console.log("TODO: Global Settings");
+    },
+    searchZones: function() {
+      console.log("TODO: Search");
+      this.clearQuery();
+    },
+    clearQuery: function() {
+      this.searchQuery = "";
+    }
   }
 }
 </script>

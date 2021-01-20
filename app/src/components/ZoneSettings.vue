@@ -1,5 +1,5 @@
 <template>
-  <v-row justify="center">
+  <v-container justify="center">
     <v-dialog v-model="show"
               fullscreen
               persistent
@@ -98,19 +98,32 @@
               />
             </v-col>
           </v-row>
+
+          <v-divider/>
+
+          <v-carousel v-model="carousel" height="auto" hide-delimiters>
+            <v-carousel-item v-for="item in this.temporaryZone.items"
+                             :key="item.id"
+            >
+              <v-row>
+                <v-card-subtitle>
+                  {{ item.name }}
+                </v-card-subtitle>
+              </v-row>
+              <v-sheet color="transparent">
+                <v-sparkline :gradient="sparklineGradient"
+                             :value="sparklineValues()"
+                             :smooth="true"
+                             :fill="true"
+                             auto-draw
+                />
+              </v-sheet>
+            </v-carousel-item>
+          </v-carousel>
         </v-card-text>
-
-        <v-divider/>
-
-        <v-sparkline :gradient="this.sparklineGradient"
-                     :value="sparklineValues"
-                     :smooth="true"
-                     auto-draw
-        />
-
       </v-card>
     </v-dialog>
-  </v-row>
+  </v-container>
 </template>
 
 <script>
@@ -134,7 +147,7 @@ function setDefaultUnits(value) {
 }
 
 function updateSliderMax(units, value) {
-  let max = undefined;
+  let max;
   if (units === _availableUnits[2]) {
     max = 24;
     if (value > 24) {
@@ -146,10 +159,10 @@ function updateSliderMax(units, value) {
   return [max, value]
 }
 
-const zoneColorsInvertedNoAlpha = [
-    "#F44336", "#FF5722", "#FF9800", "#FFC107",
-    "#FFEB3B", "#CDDC39", "#8BC34A", "#4CAF50",
-    "#4CAF50", "#4CAF50", "#4CAF50"
+const zoneColorsNoAlpha = [
+    "#4CAF50", "#4CAF50", "#4CAF50", "#4CAF50",
+    "#8BC34A", "#CDDC39", "#FFEB3B", "#FFC107",
+    "#FF9800", "#FF5722", "#F44336"
 ];
 
 
@@ -166,14 +179,19 @@ export default {
       sliderMaxLeds: setDefaultSliderMax(this.temporaryZone.periodicityLeds),
       currentUnitsDoors: setDefaultUnits(this.temporaryZone.periodicityDoors),
       currentUnitsLeds: setDefaultUnits(this.temporaryZone.periodicityLeds),
-      sparklineGradient: zoneColorsInvertedNoAlpha.reverse(),
-      sparklineValues: [0, 2, 5, 9, 5, 10, 3, 5, 0, 0, 1, 8, 2, 9, 0]
+      sparklineGradient: zoneColorsNoAlpha.reverse(),
+      carousel: 0,
+      sparklineValues: function() {
+        console.log("TODO Add items values!");
+        return [0, 2, 5, 9, 5, 10, 3, 5, 0, 0, 1, 8, 2, 9, 0];
+      }
     }
   },
   methods: {
     closeZoneSettingsDialog: function (){
+      console.log("DEBUG: ZoneSettings>closeZoneSettingsDialog");
       this.show = false;
-      this.$emit("close-zone-settings-dialog")
+      this.$emit("close-zone-settings-dialog");
     },
     updateMaxUnitsDoor: function(){
       [this.sliderMaxDoors, this.temporaryZone.periodicityDoors] =
