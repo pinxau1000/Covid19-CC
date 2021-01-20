@@ -6,27 +6,24 @@
     <v-col class="col-12 col-sm-6 col-lg-4 col-xl-3">
     <v-card v-bind:color="warningColor">
       <v-card-title>
-        <v-row class="justify-space-between">
-          <v-col class="col-auto justify-start">
-              <v-btn
-                  color="primary"
-                  icon
-                  small
-                  elevation="1"
-                  @click.stop="openZoneSettingsDialog"
-              >
-                <v-icon>
-                  mdi-dots-vertical
-                </v-icon>
-              </v-btn>
-          </v-col>
-          <v-col class="col justify-center">
-            {{ zone.name }}
-          </v-col>
-          <v-col class="col-auto text-right justify-end">
-            {{ zone.current }} / {{ zone.total }}
-          </v-col>
-        </v-row>
+        <v-btn class="mr-2 mr-sm-4"
+               color="primary"
+               icon
+               small
+               elevation="1"
+               @click.stop="openZoneSettingsDialog"
+        >
+          <v-icon>
+            mdi-dots-vertical
+          </v-icon>
+        </v-btn>
+      <span class="justify-start">
+        {{ zone.name }}
+      </span>
+      <v-spacer/>
+      <span class="justify-end">
+        {{ zone.current }} / {{ zone.total }}
+      </span>
       </v-card-title>
       <v-card-text>
         <ZoneItem v-for="item in zone.items"
