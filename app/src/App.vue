@@ -30,7 +30,7 @@ export default {
   data() {
     return {
       title: "$User",
-      zones: [{name: "test"}]
+      zones: [undefined]
     }
   },
   mounted: function () {
