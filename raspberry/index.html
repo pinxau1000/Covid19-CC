@@ -10,8 +10,29 @@
 
 <body>
     <h2>Registo de entradas e saídas</h2>
-        <button type='button' id='stateon' onclick='LEDOn()' style="background-color:green;">1 Entrada</button>
-        <button type='button' id='stateoff' onclick='LEDOff()' style="background-color:red;">1 Saída</button>
+        <button type='button' id='stateon' onclick='LEDOn()' style="background-color:green;">Registar Entrada</button>
+        <button type='button' id='stateoff' onclick='LEDOff()' style="background-color:red;">Registar Saída</button>
+            <div>
+            Nome: <input/>
+        </div>
+        <div>
+            Chave: <input/>
+        </div>
+        <div>
+            Valor: <input/>
+        </div>
+        <div>
+            <button type="button" id="read" onclick="testread()">Update value</button>
+            <button>
+            Submit
+            </button>
+            <button>
+            Delete
+            </button>
+        </div>
+
+        <br>
+
         <script src="/socket.io/socket.io.js"></script>
         <script>
             var socket = io();
@@ -25,6 +46,10 @@
             function LEDOff() {
                 socket.emit('state', 0); //send button state to server
                 console.log('Off');
+            }
+
+            function testread() {
+                socket.emit('read');
             }
         </script>
 </body>
