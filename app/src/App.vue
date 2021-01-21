@@ -3,7 +3,7 @@
     <AppBar :title="title"/>
 
     <v-main>
-      <Body :zones="zones"/>
+      <Body v-if="fetched===true" :zones="zones"/>
     </v-main>
 
     <v-footer app>
@@ -12,17 +12,14 @@
 </template>
 
 <script>
+"use strict"
+
 import Body from "@/components/Body";
 import AppBar from "@/components/AppBar";
-
-// Import Firebase Config (Already Initialized!)
-import firebase from "../firebase.config"
+import {database} from "@/plugins/firebase"
 
 export default {
   name: 'App',
-  firebase: {
-
-  },
   components: {
     AppBar,
     Body
@@ -30,23 +27,23 @@ export default {
   data() {
     return {
       title: "$User",
-      zones: [undefined]
+      fetched: false,
+      zones: []
     }
   },
   mounted: function () {
-    let App = this;
+    let _zones = [];
     this.$nextTick(function () {
-      // Get a reference to the database service
-      let database = firebase.database();
-      let baseRef = database.ref();
-      let _zones = []
-      baseRef.on("value",function(snapshot) {
-        snapshot.forEach(function (child){
-          _zones.push(child.toJSON())
-        })
-        App.zones = [_zones[0]];
-      });
-    })
+      database.ref().on("value", function(dataSnapshot){
+            _zones = dataSnapshot.toJSON();
+            console.log(_zones);
+        }
+      );
+    });
+    this.zones = _zones;
+    console.warn(this.zones);
+    console.error(JSON.parse(JSON.stringify(this.zones)));
   }
 };
+
 </script>

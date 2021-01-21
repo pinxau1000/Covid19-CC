@@ -1,4 +1,5 @@
 <template>
+  <v-card>
     <v-app-bar
         app
         absolute
@@ -6,8 +7,6 @@
         dark
         dense
     >
-      <v-app-bar-nav-icon @click="globalSettings"></v-app-bar-nav-icon>
-
       <v-toolbar-title class="mr-4 mr-sm-12">
         {{ title }}
       </v-toolbar-title>
@@ -24,10 +23,10 @@
                     hide-details
       />
     </v-app-bar>
+  </v-card>
 </template>
 
 <script>
-
 export default {
   name: "AppBar",
   props: {
@@ -35,13 +34,11 @@ export default {
   },
   data() {
     return {
+      show: false,
       searchQuery: ""
     }
   },
   methods: {
-    globalSettings: function() {
-      console.log("TODO: Global Settings");
-    },
     searchZones: function() {
       console.log("TODO: Search");
       this.clearQuery();
@@ -52,6 +49,3 @@ export default {
   }
 }
 </script>
-
-<style scoped>
-</style>
