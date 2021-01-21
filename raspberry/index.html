@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Covid19-CC</title>
+</head>
+
+<body>
+    <h2>Registo de entradas e saídas</h2>
+        <button type='button' id='stateon' onclick='LEDOn()' style="background-color:green;">1 Entrada</button>
+        <button type='button' id='stateoff' onclick='LEDOff()' style="background-color:red;">1 Saída</button>
+        <script src="/socket.io/socket.io.js"></script>
+        <script>
+            var socket = io();
+            //var socket = io.connect(); //load socket.io-client and connect to the host
+            function LEDOn() {
+                //socket.emit('connection');
+                socket.emit('state', 1); //send button state to server
+                console.log('On');
+            }
+
+            function LEDOff() {
+                socket.emit('state', 0); //send button state to server
+                console.log('Off');
+            }
+        </script>
+</body>
+
+</html>

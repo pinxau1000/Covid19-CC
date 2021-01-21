@@ -1,0 +1,4 @@
+//socket.io
+https://socket.io/get-started/chat/#The-web-framework
+https://socket.io/docs/v2/client-api/
+https://socket.io/docs/v3/index.html
