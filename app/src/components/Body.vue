@@ -3,9 +3,9 @@
     <v-container>
       <v-row class="justify-center">
           <!-- A Zone component is added for each zone in the zones array -->
-          <Zone v-for="z in zones"
-                :key="z.id"
-                :zone="z"
+          <Zone v-for="zone in zones"
+                :key="zone.id"
+                :zone="zone"
                 @open-zone-settings-dialog="openZoneSettingsHandle($event)"
           />
       </v-row>

@@ -19,6 +19,9 @@
         </v-btn>
       <span class="justify-start">
         {{ zone.name }}
+        <span v-if="zone.enabled === false" class="text-caption">
+           - disabled
+        </span>
       </span>
       <v-spacer/>
       <span class="justify-end">
@@ -37,7 +40,7 @@
 
 <script>
 import ZoneItem from "@/components/ZoneItem";
-import {zoneColorsAlpha} from "@/assets/zone.colors"
+import {zoneColorsAlpha, zoneColorDisabled} from "@/assets/zone.colors"
 
 export default {
   name: "Zone",
@@ -53,27 +56,20 @@ export default {
   },
   computed: {
     warningColor: function (){
+      if (this.zone.enabled === false){
+          return zoneColorDisabled;
+      }
+
+      if (this.zone.total === 0){
+          return zoneColorsAlpha[0];
+      }
+
       let idx = Math.round(
           this.zone.current*zoneColorsAlpha.length/this.zone.total
       );
+
       return (idx >= zoneColorsAlpha.length) ?
           zoneColorsAlpha[zoneColorsAlpha.length-1] : zoneColorsAlpha[idx];
-
-      /*
-      if (this.zone.current > Math.floor(this.zone.total * 0.95)){
-        return "red lighten-4";
-      }
-      if (this.zone.current > Math.floor(this.zone.total * 0.9)){
-        return "orange lighten-4";
-      }
-      if (this.zone.current > Math.floor(this.zone.total * 0.8)){
-        return "amber lighten-4";
-      }
-      if (this.zone.current > Math.floor(this.zone.total * 0.7)){
-        return "yellow lighten-4";
-      }
-      return "light-green lighten-4";
-      */
     }
   },
   methods: {

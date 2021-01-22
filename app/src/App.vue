@@ -14,7 +14,16 @@
 <script>
 import Body from "@/components/Body";
 import AppBar from "@/components/AppBar";
-import {getAllZones} from "@/plugins/firebase"
+import {getAllZones, listeningAllZones} from "@/plugins/firebase"
+
+let _zones;
+listeningAllZones(
+  function updateCallback(zones){
+    console.log("Updated");
+    console.log(zones)
+    _zones = zones;
+  }
+)
 
 export default {
   name: 'App',
@@ -27,18 +36,18 @@ export default {
   },
   data() {
     return {
+      App: this,
       title: "$User",
-      zones: []
+      zones: _zones
     }
   },
   mounted: function () {
     let App = this;
     this.$nextTick(function () {
       getAllZones(function(zones) {
+        console.log("Initial");
+        console.log(zones)
         App.zones = zones;
-      },
-      function (error){
-        console.error(error)
       });
     });
   }

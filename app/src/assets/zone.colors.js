@@ -9,11 +9,14 @@ const zoneColorsAlpha = [
           `#8BC34A${alpha}`, `#CDDC39${alpha}`, `#FFEB3B${alpha}`, `#FFC107${alpha}`,
           `#FF9800${alpha}`, `#FF5722${alpha}`, `#F44336${alpha}`, `#FF0000${alpha}`
       ];
+const zoneColorDisabled = '#CFD8DC';
+
 const zoneColorsReversed = Array.from(zoneColors).reverse();
 const zoneColorsAlphaReversed = Array.from(zoneColorsAlpha).reverse();
 export {
     zoneColors,
     zoneColorsAlpha,
     zoneColorsReversed,
-    zoneColorsAlphaReversed
+    zoneColorsAlphaReversed,
+    zoneColorDisabled
 };

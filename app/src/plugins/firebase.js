@@ -67,8 +67,6 @@ const createZone = function(zoneName, successCallback, failureCallback, current=
         name: zoneName,
         current: current,
         total: total,
-        periodicityDoors: 0,
-        periodicityLeds: 0,
         enabled: true,
         items: []
     }).then(successCallback(uuid)).catch(error => failureCallback(error));
@@ -104,6 +102,18 @@ const getAllZones = function(successCallback, failureCallback) {
     database.ref().once("value")
         .then(dataSnapshot => successCallback(dataSnapshot.toJSON()))
         .catch(error => failureCallback(error));
+}
+
+/**
+ * Listening for changes in zones.
+ * @param successCallback The success callback.
+ * @param failureCallback The failure callback.
+ */
+const listeningAllZones = function (successCallback, failureCallback) {
+    // failureCallback is optional
+    failureCallback =  (typeof(failureCallback) !== "function") ? function(error){return error} : failureCallback;
+
+    database.ref().on("value",dataSnapshot => successCallback(dataSnapshot.toJSON()), failureCallback);
 }
 
 /**
@@ -272,10 +282,6 @@ const getName = function(zoneName, successCallback, failureCallback){
     getValue(zoneName, "name", successCallback, failureCallback);
 }
 
-const updateName = function(zoneName, value, successCallback, failureCallback){
-    updateValue(zoneName, "name", value, successCallback, failureCallback);
-}
-
 const getCurrent = function(zoneName, successCallback, failureCallback){
     getValue(zoneName, "current", successCallback, failureCallback);
 }
@@ -300,20 +306,12 @@ const updateEnabled = function(zoneName, value, successCallback, failureCallback
     updateValue(zoneName, "enabled", value, successCallback, failureCallback);
 }
 
-const getPeriodicityDoors = function(zoneName, successCallback, failureCallback){
-    getValue(zoneName, "periodicityDoors", successCallback, failureCallback);
-}
+const listeningEnabled = function(zoneName, successCallback, failureCallback){
+    // failureCallback is optional
+    failureCallback =  (typeof(failureCallback) !== "function") ? function(error){return error} : failureCallback;
 
-const updatePeriodicityDoors = function(zoneName, value, successCallback, failureCallback){
-    updateValue(zoneName, "periodicityDoors", value, successCallback, failureCallback);
-}
-
-const getPeriodicityLeds = function(zoneName, successCallback, failureCallback){
-    getValue(zoneName, "periodicityLeds", successCallback, failureCallback);
-}
-
-const updatePeriodicityLeds = function(zoneName, value, successCallback, failureCallback){
-    updateValue(zoneName, "periodicityLeds", value, successCallback, failureCallback);
+    database.ref(zoneName).child("enabled")
+        .on("value",dataSnapshot => successCallback(dataSnapshot.toJSON()), failureCallback);
 }
 
 /**
@@ -331,7 +329,6 @@ const getPeriodicitySensor = function(zoneName, sensorName, successCallback, fai
         .then(dataSnapshot => successCallback(dataSnapshot.toJSON()))
         .catch(error => failureCallback(error));
 }
-
 
 /**
  * Updated the periodicity of a sensor.
@@ -477,59 +474,6 @@ const incrementCurrent = function(zoneName, N, successCallback, failureCallback)
         .catch(error => failureCallback(error));
 }
 
-
-/**
- * FIXME TEST CODE -> MUST BE DELETED
- */
-/*
-newSensorValueNow("Zé", "boss", Math.random());
-getLastValues("Zé", "boss", 3, function (obj){console.log(obj)});
-getFirstValues("Zé", "boss", 3, function (obj){console.log(obj)});
-*/
-
-/*
-let startDate = new Date(2020, 0, 1);
-let sensorDate = new Date(2020,0,2);
-let endDate = new Date(2020, 0, 3);
-console.log("Start: " + startDate.getTime())
-console.log("Sensor: " + sensorDate.getTime())
-console.log("Stop: " + endDate.getTime())
-newSensorValue("Zé", "boss", 20, sensorDate.getTime(), function (uuid){
-    console.log(uuid)
-})
-
-getRangeValuesTimestamp("Zé", "boss", startDate.getTime(), endDate.getTime(),
-    function (values){
-        console.log("Sensors between: " + values);
-    });
- */
-
-/*
-updateCurrent("Zé", 2);
-updateTotal("Zé", 10);
-updateEnabled("Zé", false);
- */
-
-/*
-newSensorValueNow("Zé", "boss", -1, uuid => console.log(uuid));
-getRangeValuesValue("Zé", "boss", 97, 101, val => console.log(val));
-*/
-
-/*
-getSensorLastUpdate("Zé","boss", function(val){
-    console.log(val);
-});
-*/
-
-/*
-getValue("Zé", "current", val => console.log(val));
-getCurrent("Zé", val => console.log(val));
-*/
-
-/*
-incrementCurrent("Zé", -1);
-*/
-
 // Initialize and Export Firebase
 export {
     database,
@@ -553,7 +497,6 @@ export {
     // Update and Gets for global zone properties
     updateValue,
     getValue,
-    updateName,
     getName,
     updateCurrent,
     getCurrent,
@@ -561,21 +504,17 @@ export {
     getTotal,
     updateEnabled,
     getEnabled,
-
-    // Increment/Decrement Current Value by N units
-    incrementCurrent,
-
-    // FIXME Periodicity Doors and Leds may be removed
-    updatePeriodicityDoors,
-    getPeriodicityDoors,
-    updatePeriodicityLeds,
-    getPeriodicityLeds,
-
+    incrementCurrent,       // Increment/Decrement Current Value by N units
     updateMultipleValues, // Updates multiple values at once using JSON syntax.
 
     // Filter Sensor Values
     getFirstValues,         // Gets the first values pushed to the sensor
     getLastValues,          // Gets the last values pushed to the sensor
     getRangeValuesTimestamp,// Gets the values between two timestamps
-    getRangeValuesValue     // Gets the values between min and max range
+    getRangeValuesValue,    // Gets the values between min and max range
+
+    // listening
+    listeningAllZones,
+    listeningEnabled
+    // TODO listeningPeriodicity
 }
