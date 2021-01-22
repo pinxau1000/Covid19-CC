@@ -9,49 +9,69 @@
 </head>
 
 <body>
-    <h2>Registo de entradas e saídas</h2>
-        <button type='button' id='stateon' onclick='LEDOn()' style="background-color:green;">Registar Entrada</button>
-        <button type='button' id='stateoff' onclick='LEDOff()' style="background-color:red;">Registar Saída</button>
-            <div>
-            Nome: <input/>
-        </div>
-        <div>
-            Chave: <input/>
-        </div>
-        <div>
-            Valor: <input/>
-        </div>
-        <div>
-            <button type="button" id="read" onclick="testread()">Update value</button>
-            <button>
-            Submit
-            </button>
-            <button>
-            Delete
-            </button>
-        </div>
+<h2>Registo de entradas e saídas</h2>
+<button type='button' id='stateon' onclick='LEDOn()' style="background-color:green;">Registar Entrada</button>
+<button type='button' id='stateoff' onclick='LEDOff()' style="background-color:red;">Registar Saída</button>
+<div>
+    <br><br>
+    <label for="zone">Nome da Zona: </label>
+    <input type="text" id="zone" name="zone" value="Leiria-Shopping-test"><br><br>
+</div>
+<div>
+    <label for="chave">Chave: </label>
+    <input type="text" id="chave" name="chave" value="current"><br><br>
+</div>
 
-        <br>
+<div>
+    <label for="value">Valor: </label>
+    <input type="text" id="value" name="value"><br><br>
+    <!--
+    <input type="submit" value="Submit">
+    -->
+</div>
 
-        <script src="/socket.io/socket.io.js"></script>
-        <script>
-            var socket = io();
-            //var socket = io.connect(); //load socket.io-client and connect to the host
-            function LEDOn() {
-                //socket.emit('connection');
-                socket.emit('state', 1); //send button state to server
-                console.log('On');
-            }
+<div>
+    <button type="button" id="read" onclick="testread()">Read value</button>
+    <button type="button" id="write" onclick="testwrite()">
+        Submit
+    </button>
+    <button type="button" id="update" onclick="testupdate()">
+        Update value
+    </button>
+</div>
 
-            function LEDOff() {
-                socket.emit('state', 0); //send button state to server
-                console.log('Off');
-            }
+<br>
 
-            function testread() {
-                socket.emit('read');
-            }
-        </script>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    var socket = io();
+
+    //var socket = io.connect(); //load socket.io-client and connect to the host
+    function LEDOn() {
+        //socket.emit('connection');
+        socket.emit('state', 1); //send button state to server
+        console.log('On');
+    }
+
+    function LEDOff() {
+        socket.emit('state', 0); //send button state to server
+        console.log('Off');
+    }
+
+    function testread() {
+        socket.emit('read');
+    }
+    function testwrite() {
+        zone_ = document.getElementById("zone").value;
+        socket.emit('write', zone_);
+    }
+    function testupdate() {
+        zone_ = document.getElementById("zone").value;
+        chave_ = document.getElementById("chave").value;
+        value_ = document.getElementById("value").value;
+        socket.emit('update', zone_, chave_, value_);
+    }
+</script>
 </body>
 
 </html>

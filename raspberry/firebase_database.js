@@ -24,22 +24,38 @@ var database = firebase.database();
 
 module.exports = function () {
     //adds new zone
-    this.addZone = function(zoneId, name, maxppl) {
+    this.addZone = function(zoneId) {
         firebase.database().ref(zoneId + '/').set({
-            current : 51,
+            current : 0,
             enabled : 'true',
             items : {
-                Entradas : 5,
-                Saídas : 2,
-                Desinfecções : 4
+                in : 5,
+                out : 2,
+                desinfect : 4
             },
             name : 'Leiria Shopping',
             periodicityLeds : 10,
             periodicityDoors : 20,
             max_ppl : 50,
-            button_state: maxppl
       });
     }
+
+    //get number of ppl inside
+    this.readZone = function (zoneId, callback) {
+        firebase.database().ref(zoneId).once('value', callback);
+    }
+
+    //update zone info
+    this.updateZone = function (zoneId, fieldId, valor) {
+        firebase.database().ref(zoneId + '/').update({
+            [fieldId] : valor
+        });
+    }
+}
+
+
+
+/*
     //get number of ppl inside
     this.updateZone = function (zoneId, child) {
         firebase.database().ref(zoneId + '/' + child).once('value', (snapshot) => {
@@ -50,17 +66,6 @@ module.exports = function () {
         return "test";
     }
 
-    this.readZone = function (zoneId, callback) {
-        firebase.database().ref(zoneId).once('value', callback);
-    }
-
-}
-
-
-//console.log(module.exports);
-
-
-/*
 var starCountRef = firebase.database().ref('posts/' + postId + '/starCount');
 starCountRef.on('value', (snapshot) => {
   const data = snapshot.val();
