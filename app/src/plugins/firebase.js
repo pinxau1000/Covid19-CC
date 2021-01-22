@@ -350,6 +350,23 @@ const updatePeriodicitySensor = function(zoneName, sensorName, periodicity, succ
 }
 
 /**
+ * Runs callback whenever periodicity changed.
+ * @param zoneName The zone name.
+ * @param sensorName The sensor name.
+ * @param successCallback The success callback.
+ * @param failureCallback The failure callback.
+ */
+const listeningPeriodicity = function(zoneName, sensorName, successCallback, failureCallback) {
+    // failureCallback is optional
+    failureCallback = (typeof (failureCallback) !== "function") ? function (error) {
+        return error
+    } : failureCallback;
+
+    database.ref(zoneName).child("items").child(sensorName).child("periodicity")
+        .on("value", dataSnapshot => successCallback(dataSnapshot.toJSON()), failureCallback);
+}
+
+/**
  * Updates multiple values based on the JSON object passed.
  * @param zoneName The zone name.
  * @param object The JSON object to update.
@@ -515,6 +532,6 @@ export {
 
     // listening
     listeningAllZones,
-    listeningEnabled
-    // TODO listeningPeriodicity
+    listeningEnabled,
+    listeningPeriodicity
 }
