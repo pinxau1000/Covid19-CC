@@ -12,11 +12,9 @@
 </template>
 
 <script>
-"use strict"
-
 import Body from "@/components/Body";
 import AppBar from "@/components/AppBar";
-import {acquireZones} from "@/plugins/firebase"
+import {getAllZones} from "@/plugins/firebase"
 
 export default {
   name: 'App',
@@ -36,7 +34,7 @@ export default {
   mounted: function () {
     let App = this;
     this.$nextTick(function () {
-      acquireZones(function(zones) {
+      getAllZones(function(zones) {
         App.zones = zones;
       },
       function (error){

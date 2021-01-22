@@ -34,22 +34,6 @@ function uuidv4() {
 }
 
 /**
- * Gets the zones on the database.
- * @see https://firebase.google.com/docs/reference/node/firebase.database.Reference#once
- * @param successCallback A function that is called when the request succeeds
- * with the passed as a JSON parameter.
- * @param failureCallback A function that is called when the request fails
- * with the error as parameter.
- */
-const acquireZones = function(successCallback, failureCallback) {
-    database.ref().once("value").then(
-        function(dataSnapshot){
-            successCallback(dataSnapshot.toJSON());
-        }
-    ).catch(error => failureCallback(error));
-}
-
-/**
  * https://firebase.google.com/docs/reference/node/firebase.database.Reference#set
  * For testing purposes the ID is random and must be defined on the
  * initialization of each zone. In real life situation we suggest using a
@@ -72,6 +56,11 @@ const acquireZones = function(successCallback, failureCallback) {
  * @param total The total number of people allowed in the zone. Default to 0.
  */
 const createZone = function(zoneName, successCallback, failureCallback, current=0, total=0){
+    // successCallback is optional
+    successCallback =  (typeof(successCallback) !== "function") ? function(value){return value} : successCallback;
+    // failureCallback is optional
+    failureCallback =  (typeof(failureCallback) !== "function") ? function(error){return error} : failureCallback;
+
     const uuid = uuidv4();
     database.ref(zoneName).set({
         id: uuid,
@@ -84,22 +73,125 @@ const createZone = function(zoneName, successCallback, failureCallback, current=
         items: []
     }).then(successCallback(uuid)).catch(error => failureCallback(error));
 }
+
+/**
+ * Gets a specific zone object.
+ * @param zoneName The zone name.
+ * @param successCallback The success callback.
+ * @param failureCallback The failure callback.
+ */
+const getZone = function(zoneName, successCallback, failureCallback){
+    // failureCallback is optional
+    failureCallback =  (typeof(failureCallback) !== "function") ? function(error){return error} : failureCallback;
+
+    database.ref(zoneName).once("value")
+        .then(dataSnapshot => successCallback(dataSnapshot.toJSON()))
+        .catch(error => failureCallback(error));
+}
+
+/**
+ * Gets the zones on the database.
+ * @see https://firebase.google.com/docs/reference/node/firebase.database.Reference#once
+ * @param successCallback A function that is called when the request succeeds
+ * with the passed as a JSON parameter.
+ * @param failureCallback A function that is called when the request fails
+ * with the error as parameter.
+ */
+const getAllZones = function(successCallback, failureCallback) {
+    // failureCallback is optional
+    failureCallback =  (typeof(failureCallback) !== "function") ? function(error){return error} : failureCallback;
+
+    database.ref().once("value")
+        .then(dataSnapshot => successCallback(dataSnapshot.toJSON()))
+        .catch(error => failureCallback(error));
+}
+
+/**
+ * Deletes a zone.
+ * @param zoneName The zone name.
+ * @param successCallback The success callback.
+ * @param failureCallback The failure callback.
+ */
+const deleteZone = function(zoneName, successCallback, failureCallback){
+    // successCallback is optional
+    successCallback =  (typeof(successCallback) !== "function") ? function(value){return value} : successCallback;
+    // failureCallback is optional
+    failureCallback =  (typeof(failureCallback) !== "function") ? function(error){return error} : failureCallback;
+
+    database.ref(zoneName).remove().then(successCallback).catch(error => failureCallback(error));
+}
+
 /**
  * Creates a new sensor within a zone.
  * @param zoneName The zone name.
  * @param sensorName The sensor name.
+ * @param periodicity The periodicity of the update. Defaults to 0.
  * @param successCallback A function to handle the complete request with the
  * ID of the created sensor.
  * @param failureCallback A function that is called when the request fails
  * with the error as parameter.
  */
-const createSensor = function(zoneName, sensorName, successCallback, failureCallback){
+const createSensor = function(zoneName, sensorName, periodicity = 0, successCallback, failureCallback){
+    // successCallback is optional
+    successCallback =  (typeof(successCallback) !== "function") ? function(value){return value} : successCallback;
+    // failureCallback is optional
+    failureCallback =  (typeof(failureCallback) !== "function") ? function(error){return error} : failureCallback;
+
     const uuid = uuidv4();
     database.ref(zoneName).child("items").child(sensorName).set({
         id: uuid,
         name: sensorName,
+        periodicity: periodicity,
         values: []
-    }).then(successCallback({uuid})).catch(error => failureCallback(error));
+    }).then(successCallback(uuid)).catch(error => failureCallback(error));
+}
+
+/**
+ * Gets a specific sensor object.
+ * @param zoneName The zone name.
+ * @param sensorName The sensor name.
+ * @param successCallback The success callback.
+ * @param failureCallback The failure callback.
+ */
+const getSensor = function(zoneName, sensorName, successCallback, failureCallback){
+    // failureCallback is optional
+    failureCallback =  (typeof(failureCallback) !== "function") ? function(error){return error} : failureCallback;
+
+    database.ref(zoneName).child("items").child(sensorName).once("value")
+        .then(dataSnapshot => successCallback(dataSnapshot.toJSON()))
+        .catch(error => failureCallback(error));
+}
+
+
+/**
+ * Gets all sensors of a zone.
+ * @param zoneName The zone name.
+ * @param successCallback The success callback.
+ * @param failureCallback The failure callback.
+ */
+const getAllSensors = function(zoneName, successCallback, failureCallback){
+    // failureCallback is optional
+    failureCallback =  (typeof(failureCallback) !== "function") ? function(error){return error} : failureCallback;
+
+    database.ref(zoneName).child("items").once("value")
+        .then(dataSnapshot => successCallback(dataSnapshot.toJSON()))
+        .catch(error => failureCallback(error));
+}
+
+/**
+ * Deletes a sensor.
+ * @param zoneName The zone name.
+ * @param sensorName The sensor name.
+ * @param successCallback The success callback.
+ * @param failureCallback The failure callback.
+ */
+const deleteSensor = function(zoneName, sensorName, successCallback, failureCallback){
+    // successCallback is optional
+    successCallback =  (typeof(successCallback) !== "function") ? function(value){return value} : successCallback;
+    // failureCallback is optional
+    failureCallback =  (typeof(failureCallback) !== "function") ? function(error){return error} : failureCallback;
+
+    database.ref(zoneName).child("items").child(sensorName).remove().then(successCallback).catch(error => failureCallback(error));
 }
 
 /**
@@ -114,12 +206,15 @@ const createSensor = function(zoneName, sensorName, successCallback, failureCall
  * error as parameter.
  */
 const newSensorValue = function(zoneName, sensorName, value, timestamp, successCallback, failureCallback){
-    const pushRef = database.ref(zoneName).child("items").child(sensorName).child("values").push({
+    // successCallback is optional
+    successCallback =  (typeof(successCallback) !== "function") ? function(value){return value} : successCallback;
+    // failureCallback is optional
+    failureCallback =  (typeof(failureCallback) !== "function") ? function(error){return error} : failureCallback;
+
+    database.ref(zoneName).child("items").child(sensorName).child("values").push({
         value: value,
         timestamp: timestamp
-    }).then(function(){
-        successCallback(pushRef.key);
-    }).catch(error => failureCallback(error));
+    }).then(ret => successCallback(ret.key)).catch(error => failureCallback(error));
 }
 
 /**
@@ -136,13 +231,351 @@ const newSensorValueNow = function(zoneName, sensorName, value, successCallback,
     newSensorValue(zoneName, sensorName, value, Date.now(), successCallback, failureCallback)
 }
 
+/**
+ * Main update function. The other update functions call this one with a
+ * pre-defined key.
+ * @param zoneName The zone name.
+ * @param key The key of the value to update.
+ * @param value The value to update.
+ * @param successCallback The success callback.
+ * @param failureCallback The failure callback.
+ */
+const updateValue = function(zoneName, key, value, successCallback, failureCallback){
+    // successCallback is optional
+    successCallback =  (typeof(successCallback) !== "function") ? function(value){return value} : successCallback;
+    // failureCallback is optional
+    failureCallback =  (typeof(failureCallback) !== "function") ? function(error){return error} : failureCallback;
+
+    database.ref(zoneName).update({
+        [key]: value
+    }).then(successCallback).catch(error => failureCallback(error));
+}
+
+/**
+ * Get main function. The other get functions use this one with a
+ * pre-defined key.
+ * @param zoneName The zone name.
+ * @param key The key of the value to update.
+ * @param successCallback The success callback.
+ * @param failureCallback The failure callback.
+ */
+const getValue = function(zoneName, key, successCallback, failureCallback){
+    // failureCallback is optional
+    failureCallback =  (typeof(failureCallback) !== "function") ? function(error){return error} : failureCallback;
+
+    database.ref(zoneName).child(key).once("value")
+        .then(dataSnapshot => successCallback(dataSnapshot.toJSON()))
+        .catch(error => failureCallback(error));
+}
+
+const getName = function(zoneName, successCallback, failureCallback){
+    getValue(zoneName, "name", successCallback, failureCallback);
+}
+
+const updateName = function(zoneName, value, successCallback, failureCallback){
+    updateValue(zoneName, "name", value, successCallback, failureCallback);
+}
+
+const getCurrent = function(zoneName, successCallback, failureCallback){
+    getValue(zoneName, "current", successCallback, failureCallback);
+}
+
+const updateCurrent = function(zoneName, value, successCallback, failureCallback){
+    updateValue(zoneName, "current", value, successCallback, failureCallback);
+}
+
+const getTotal = function(zoneName, successCallback, failureCallback){
+    getValue(zoneName, "total", successCallback, failureCallback);
+}
+
+const updateTotal = function(zoneName, value, successCallback, failureCallback){
+    updateValue(zoneName, "total", value, successCallback, failureCallback);
+}
+
+const getEnabled = function(zoneName, successCallback, failureCallback){
+    getValue(zoneName, "enabled", successCallback, failureCallback);
+}
+
+const updateEnabled = function(zoneName, value, successCallback, failureCallback){
+    updateValue(zoneName, "enabled", value, successCallback, failureCallback);
+}
+
+const getPeriodicityDoors = function(zoneName, successCallback, failureCallback){
+    getValue(zoneName, "periodicityDoors", successCallback, failureCallback);
+}
+
+const updatePeriodicityDoors = function(zoneName, value, successCallback, failureCallback){
+    updateValue(zoneName, "periodicityDoors", value, successCallback, failureCallback);
+}
+
+const getPeriodicityLeds = function(zoneName, successCallback, failureCallback){
+    getValue(zoneName, "periodicityLeds", successCallback, failureCallback);
+}
+
+const updatePeriodicityLeds = function(zoneName, value, successCallback, failureCallback){
+    updateValue(zoneName, "periodicityLeds", value, successCallback, failureCallback);
+}
+
+/**
+ * Gets the current value of the periodicity of a sensor.
+ * @param zoneName The zone name.
+ * @param sensorName The sensor name.
+ * @param successCallback The success callback.
+ * @param failureCallback The failure callback.
+ */
+const getPeriodicitySensor = function(zoneName, sensorName, successCallback, failureCallback){
+    // failureCallback is optional
+    failureCallback =  (typeof(failureCallback) !== "function") ? function(error){return error} : failureCallback;
+
+    database.ref(zoneName).child("items").child(sensorName).child("periodicity").once("value")
+        .then(dataSnapshot => successCallback(dataSnapshot.toJSON()))
+        .catch(error => failureCallback(error));
+}
+
+
+/**
+ * Updated the periodicity of a sensor.
+ * @param zoneName The zone name.
+ * @param sensorName The sensor name.
+ * @param periodicity The new periodicity value.
+ * @param successCallback The success callback.
+ * @param failureCallback The failure callback.
+ */
+const updatePeriodicitySensor = function(zoneName, sensorName, periodicity, successCallback, failureCallback){
+    // successCallback is optional
+    successCallback =  (typeof(successCallback) !== "function") ? function(value){return value} : successCallback;
+    // failureCallback is optional
+    failureCallback =  (typeof(failureCallback) !== "function") ? function(error){return error} : failureCallback;
+
+    database.ref(zoneName).child("items").child(sensorName).update({
+        "periodicity": periodicity
+    }).then(successCallback).catch(error => failureCallback(error));
+}
+
+/**
+ * Updates multiple values based on the JSON object passed.
+ * @param zoneName The zone name.
+ * @param object The JSON object to update.
+ * @param successCallback The success callback.
+ * @param failureCallback The failure callback.
+ */
+const updateMultipleValues = function(zoneName, object, successCallback, failureCallback){
+    // successCallback is optional
+    successCallback =  (typeof(successCallback) !== "function") ? function(value){return value} : successCallback;
+    // failureCallback is optional
+    failureCallback =  (typeof(failureCallback) !== "function") ? function(error){return error} : failureCallback;
+
+    database.ref(zoneName).update(object).then(successCallback).catch(error => failureCallback(error));
+}
+
+/**
+ * Retrieves the last N acquired values in a given sensor.
+ * @param zoneName The zone name.
+ * @param sensorName The sensor name.
+ * @param successCallback The success callback.
+ * @param failureCallback The failure callback.
+ */
+const getLastValues = function(zoneName, sensorName, nLastValues, successCallback, failureCallback){
+    // failureCallback is optional
+    failureCallback =  (typeof(failureCallback) !== "function") ? function(error){return error} : failureCallback;
+
+    let lastValuesRef = database.ref(zoneName).child("items").child(sensorName).child("values").limitToLast(nLastValues);
+    lastValuesRef.once("value")
+        .then(dataSnapshot => successCallback(dataSnapshot.toJSON()))
+        .catch(error => failureCallback(error));
+}
+
+
+/**
+ * Retrieves the first N acquired values in a given sensor.
+ * @param zoneName The zone name.
+ * @param sensorName The sensor name.
+ * @param successCallback The success callback.
+ * @param failureCallback The failure callback.
+ */
+const getFirstValues = function(zoneName, sensorName, nFirstValues, successCallback, failureCallback){
+    // failureCallback is optional
+    failureCallback =  (typeof(failureCallback) !== "function") ? function(error){return error} : failureCallback;
+
+    let firstValuesRef = database.ref(zoneName).child("items").child(sensorName).child("values").limitToFirst(nFirstValues);
+    firstValuesRef.once("value")
+        .then(dataSnapshot => successCallback(dataSnapshot.toJSON()))
+        .catch(error => failureCallback(error));
+}
+
+/**
+ * Retrieves the values between startInstant and endInstant for a given sensor.
+ * @param zoneName The zone name.
+ * @param sensorName The sensor name.
+ * @param successCallback The success callback.
+ * @param failureCallback The failure callback.
+ */
+const getRangeValuesTimestamp = function(zoneName, sensorName, startTimestamp, endTimestamp, successCallback, failureCallback){
+    // failureCallback is optional
+    failureCallback =  (typeof(failureCallback) !== "function") ? function(error){return error} : failureCallback;
+
+    let ref = database.ref(zoneName).child("items").child(sensorName)
+        .child("values").orderByChild("timestamp")
+        .startAt(startTimestamp).endAt(endTimestamp);
+
+    ref.once("value")
+        .then(dataSnapshot => successCallback(dataSnapshot.toJSON()))
+        .catch(error => failureCallback(error));
+}
+
+/**
+ * Retrieves the values between a min and max value for a given sensor
+ * @param zoneName The zone name.
+ * @param sensorName The sensor name.
+ * @param successCallback The success callback.
+ * @param failureCallback The failure callback.
+ */
+const getRangeValuesValue = function(zoneName, sensorName, minValue, maxValue, successCallback, failureCallback){
+    // failureCallback is optional
+    failureCallback =  (typeof(failureCallback) !== "function") ? function(error){return error} : failureCallback;
+
+    let ref = database.ref(zoneName).child("items").child(sensorName)
+        .child("values").orderByChild("value")
+        .startAt(minValue).endAt(maxValue);
+
+    ref.once("value")
+        .then(dataSnapshot => successCallback(dataSnapshot.toJSON()))
+        .catch(error => failureCallback(error));
+}
+
+/**
+ * Retrieves the last update instant for a given sensor. Meant to be used by
+ * the edge device to update periodically.
+ * @param zoneName The zone name.
+ * @param sensorName The sensor name.
+ * @param successCallback The success callback.
+ * @param failureCallback The failure callback.
+ */
+const getSensorLastUpdate = function(zoneName, sensorName, successCallback, failureCallback){
+    // failureCallback is optional
+    failureCallback =  (typeof(failureCallback) !== "function") ? function(error){return error} : failureCallback;
+
+    const ref = database.ref(zoneName).child("items").child(sensorName).child("values").limitToLast(1);
+
+    ref.once("value")
+        .then(function(dataSnapshot){
+            let dataJSON = dataSnapshot.toJSON();
+            successCallback(dataJSON[Object.keys(dataJSON)[0]].timestamp)
+        })
+        .catch(error => failureCallback(error));
+}
+
+const incrementCurrent = function(zoneName, N, successCallback, failureCallback){
+    // failureCallback is optional
+    failureCallback =  (typeof(failureCallback) !== "function") ? function(error){return error} : failureCallback;
+
+    database.ref(zoneName).child("current")
+        .transaction(function(current_value){
+            return current_value+N
+        })
+        .then(result => successCallback(result))
+        .catch(error => failureCallback(error));
+}
+
+
+/**
+ * FIXME TEST CODE -> MUST BE DELETED
+ */
+/*
+newSensorValueNow("Zé", "boss", Math.random());
+getLastValues("Zé", "boss", 3, function (obj){console.log(obj)});
+getFirstValues("Zé", "boss", 3, function (obj){console.log(obj)});
+*/
+
+/*
+let startDate = new Date(2020, 0, 1);
+let sensorDate = new Date(2020,0,2);
+let endDate = new Date(2020, 0, 3);
+console.log("Start: " + startDate.getTime())
+console.log("Sensor: " + sensorDate.getTime())
+console.log("Stop: " + endDate.getTime())
+newSensorValue("Zé", "boss", 20, sensorDate.getTime(), function (uuid){
+    console.log(uuid)
+})
+
+getRangeValuesTimestamp("Zé", "boss", startDate.getTime(), endDate.getTime(),
+    function (values){
+        console.log("Sensors between: " + values);
+    });
+ */
+
+/*
+updateCurrent("Zé", 2);
+updateTotal("Zé", 10);
+updateEnabled("Zé", false);
+ */
+
+/*
+newSensorValueNow("Zé", "boss", -1, uuid => console.log(uuid));
+getRangeValuesValue("Zé", "boss", 97, 101, val => console.log(val));
+*/
+
+/*
+getSensorLastUpdate("Zé","boss", function(val){
+    console.log(val);
+});
+*/
+
+/*
+getValue("Zé", "current", val => console.log(val));
+getCurrent("Zé", val => console.log(val));
+*/
+
+/*
+incrementCurrent("Zé", -1);
+*/
 
 // Initialize and Export Firebase
 export {
     database,
-    acquireZones,
+    // Zones
     createZone,
+    getZone,
+    getAllZones,
+    deleteZone,
+
+    // Sensors
     createSensor,
-    newSensorValue,
-    newSensorValueNow
+    getSensor,
+    getAllSensors,
+    deleteSensor,
+    getSensorLastUpdate,        // Gets the last timestamp of a sensor update
+    newSensorValue,             // Pushes a new value with a given timestamp
+    newSensorValueNow,          // Pushes a new value with the current timestamp
+    updatePeriodicitySensor,    // Sets a new value on periodicity
+    getPeriodicitySensor,       // Gets periodicity value of a sensor
+
+    // Update and Gets for global zone properties
+    updateValue,
+    getValue,
+    updateName,
+    getName,
+    updateCurrent,
+    getCurrent,
+    updateTotal,
+    getTotal,
+    updateEnabled,
+    getEnabled,
+
+    // Increment/Decrement Current Value by N units
+    incrementCurrent,
+
+    // FIXME Periodicity Doors and Leds may be removed
+    updatePeriodicityDoors,
+    getPeriodicityDoors,
+    updatePeriodicityLeds,
+    getPeriodicityLeds,
+
+    updateMultipleValues, // Updates multiple values at once using JSON syntax.
+
+    // Filter Sensor Values
+    getFirstValues,         // Gets the first values pushed to the sensor
+    getLastValues,          // Gets the last values pushed to the sensor
+    getRangeValuesTimestamp,// Gets the values between two timestamps
+    getRangeValuesValue     // Gets the values between min and max range
 }
