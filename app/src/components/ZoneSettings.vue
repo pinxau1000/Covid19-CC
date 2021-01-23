@@ -54,9 +54,13 @@
             </v-col>
           </v-row>
 
-          <v-divider class="mt-2"/>
+          <v-row>
+            <v-col>
+              <v-divider/>
+            </v-col>
+          </v-row>
 
-          <ZoneCarousel :items="temporaryZone.items"/>
+          <ZoneCarousel :items.sync="temporaryZone.items"/>
 
         </v-card-text>
       </v-card>
