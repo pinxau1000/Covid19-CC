@@ -52,51 +52,42 @@
               </v-col>
             </v-row>
 
-            <div v-if="dataAndTimestamp" class="elevation-4 table">
-              <v-row>
-                <v-col class="col-6">
-                  <h3 class="text-center">
+            <v-simple-table v-if="dataAndTimestamp"
+                            fixed-header
+                            height="300px"
+                            dense
+            >
+              <thead>
+                <tr>
+                  <th class="text-left">
                     Value
-                  </h3>
-                </v-col>
-                <v-col class="col-6">
-                  <h3 class="text-center">
+                  </th>
+                  <th class="text-left">
                     Date
-                  </h3>
-                </v-col>
-              </v-row>
-              <v-row>
-                <v-col class="col-12">
-                  <v-virtual-scroll :item-height="50"
-                                    :height="200"
-                                    :items="dataAndTimestamp"
-                  >
-                    <v-list>
-                      <v-list-item v-for="data in this.dataAndTimestamp"
-                                   :key="`LogList-${data.timestamp}`"
-                      >
-                        <v-list-item-content>
-                          <v-row>
-                            <v-col class="align-self-center">
-                              <v-list-item-title v-text="data.value"
-                                                 class="text-center"
-                              />
-                            </v-col>
-                            <v-col>
-                              <v-list-item-title
-                                  v-text="new Date(data.timestamp).toISOString().replace('T',' @ ').slice(0, -5)"
-                                  class="text-center"
-                              />
-                            </v-col>
-                          </v-row>
-
-                        </v-list-item-content>
-                    </v-list-item>
-                  </v-list>
-                </v-virtual-scroll>
-              </v-col>
-            </v-row>
-          </div>
+                  </th>
+                  <th class="text-left">
+                    Time
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  v-for="(data, idx) in dataAndTimestamp"
+                  :key="`LogTable-${idx}`"
+                >
+                  <td>{{ data.value }}</td>
+                  <td>{{ new Date(data.timestamp).toISOString().split('T')[0] }}</td>
+                  <td>{{ new Date(data.timestamp).toISOString().split('T')[1].slice(0, -5) }}</td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr>
+                  <th class="text-left">
+                    Total: {{ this.valuesSum }}
+                  </th>
+                </tr>
+              </tfoot>
+            </v-simple-table>
 
         </v-window>
       </v-col>
@@ -115,6 +106,7 @@ function getSparklineValuesCallback(objects, context){
   } else {
     let values = [];
     let timestamps = [];
+    context.valuesSum = 0
     for (let obj of Object.values(objects)){
       // Gets value (to sparkline)
       values.push(obj.value);
@@ -122,6 +114,7 @@ function getSparklineValuesCallback(objects, context){
       // Time stamp is hard to see, setting blank!
       timestamps.push(" ");
 
+      context.valuesSum += obj.value;
     }
 
     // Gets al data for logging
@@ -158,7 +151,8 @@ export default {
       },
 
       // Log
-      dataAndTimestamp: undefined
+      dataAndTimestamp: undefined,
+      valuesSum: undefined
     }
   },
   mounted() {

@@ -26,7 +26,7 @@ import ZoneSettings from "@/components/ZoneSettings";
 function openZoneSettingsHandle(zone) {
   console.log("DEBUG Body>openZoneSettingsHandle")
   this.showZoneSettingsDialog  = true;
-  this.temporaryZone = zone;
+  this.temporaryZone = JSON.parse(JSON.stringify(zone));  // Clones the Object!
 }
 
 function closeZoneSettingsHandle() {
