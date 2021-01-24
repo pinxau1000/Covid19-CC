@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" xmlns="http://www.w3.org/1999/html">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport"
@@ -10,67 +10,100 @@
 
 <body>
 <h2>Registo de entradas e saídas</h2>
-<button type='button' id='stateon' onclick='LEDOn()' style="background-color:green;">Registar Entrada</button>
-<button type='button' id='stateoff' onclick='LEDOff()' style="background-color:red;">Registar Saída</button>
 <div>
-    <br><br>
-    <label for="zone">Nome da Zona: </label>
-    <input type="text" id="zone" name="zone" value="Leiria-Shopping-test"><br><br>
-</div>
-<div>
-    <label for="chave">Chave: </label>
-    <input type="text" id="chave" name="chave" value="current"><br><br>
-</div>
+    <!--<label>Selecionar ou Inserir Zona:</label>
 
-<div>
-    <label for="value">Valor: </label>
-    <input type="text" id="value" name="value"><br><br>
-    <!--
-    <input type="submit" value="Submit">
+    onchange="getSelectedText(this)"
+
     -->
+    <p>Selecionar ou Inserir Zona:</p>
+    <form action="" method="get">
+        <input type="text" id="zone" list="zone-select"/>
+        <datalist id="zone-select">
+            <option value = "IPLeiria">
+            <option value = "Leiria-Shopping">
+        </datalist>
+        <button type="button" id="addzone" onclick="createzone()">Adicionar zona</button>
+        <button type="button" id="deletezone" onclick="delzone()">Apagar zona</button>
+    </form>
+    <!--<label for="zone">Nome da Zona: </label>
+    <input type="text" id="zone" name="zone" value="Leiria-Shopping"><br><br> -->
+</div>
+<div>
+    <!--<label for="chave">Chave: </label> -->
+    <p>Chave:</p>
+    <input type="text" id="chave" name="chave" value="current">
 </div>
 
 <div>
-    <button type="button" id="read" onclick="testread()">Read value</button>
-    <button type="button" id="write" onclick="testwrite()">
-        Submit
-    </button>
-    <button type="button" id="update" onclick="testupdate()">
-        Update value
-    </button>
+    <p>Valor:</p>
+    <!--<label for="value">Valor: </label> -->
+    <input type="text" id="value" name="value">
+    <button type="button" id="read" onclick="readzone()">Ler valores</button>
+    <button type="button" id="update" onclick="updatezone()">Atualizar Valores</button><br><br>
+</div>
+
+<div>
+    <button type="button" id="stateon" onclick="input()" style="background-color:green;">Registar Entrada</button>
+    <button type="button" id="stateoff" onclick="output()" style="background-color:red;">Registar Saída</button>
+    <button type="button" id="desinfection" onclick="desinfect()" style="background-color:lightblue;">Registar Desinfeção</button>
 </div>
 
 <br>
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
-    var socket = io();
+    var socket = io(); //load socket.io-client and connect to the host
 
-    //var socket = io.connect(); //load socket.io-client and connect to the host
-    function LEDOn() {
-        //socket.emit('connection');
-        socket.emit('state', 1); //send button state to server
-        console.log('On');
+    /*
+    var zone_ = "IPLeiria"; //default zone
+    function getSelectedText(sel) {
+        var zone_ = sel.options[sel.selectedIndex].text;
+    }
+     */
+
+    function input() {
+        let zone_ = document.getElementById("zone").value;
+        socket.emit("inout", 1, zone_); //send button state to server
+        socket.emit("newsensoreg", zone_, "Entrada", 1);
+        console.log(zone_ + " Entrada");
     }
 
-    function LEDOff() {
-        socket.emit('state', 0); //send button state to server
-        console.log('Off');
+    function output() {
+        let zone_ = document.getElementById("zone").value;
+        socket.emit("inout", -1, zone_); //send button state to server
+        socket.emit("newsensoreg", zone_, "Saida", 1);
+        console.log(zone_ + " Saída");
     }
 
-    function testread() {
-        socket.emit('read');
+    function desinfect() {
+        let zone_ = document.getElementById("zone").value;
+        socket.emit("newsensoreg", zone_, "Desinfetante", 1);
+        console.log(zone_ + " Desinfeção");
     }
-    function testwrite() {
-        zone_ = document.getElementById("zone").value;
-        socket.emit('write', zone_);
+
+    function readzone() {
+        let zone_ = document.getElementById("zone").value;
+        socket.emit("read", zone_);
     }
-    function testupdate() {
-        zone_ = document.getElementById("zone").value;
-        chave_ = document.getElementById("chave").value;
-        value_ = document.getElementById("value").value;
-        socket.emit('update', zone_, chave_, value_);
+
+    function createzone() {
+        let zone_ = document.getElementById("zone").value;
+        socket.emit("create", zone_);
     }
+
+    function delzone() {
+        let zone_ = document.getElementById("zone").value;
+        socket.emit("deletezone", zone_);
+    }
+
+    function updatezone() {
+        let zone_ = document.getElementById("zone").value;
+        let chave_ = document.getElementById("chave").value;
+        let value_ = document.getElementById("value").value;
+        socket.emit("update", zone_, chave_, Number(value_));
+    }
+
 </script>
 </body>
 
