@@ -13,7 +13,7 @@
         >
           <v-btn icon
                  dark
-                 @click.stop="closeZoneSettingsDialog"
+                 @click.stop="closeZoneSettingsDialog(false)"
           >
             <v-icon> mdi-close </v-icon>
           </v-btn>
@@ -22,7 +22,7 @@
           <v-toolbar-items>
             <v-btn dark
                    text
-                   @click.stop="closeZoneSettingsDialog"
+                   @click.stop="closeZoneSettingsDialog(true)"
             >
               Save
             </v-btn>
@@ -73,6 +73,33 @@
 <script>
 import ZoneCarousel from "@/components/ZoneCarousel";
 import {zoneColors} from "@/assets/zone.colors";
+import {updateZoneChilds} from "@/plugins/firebase";
+
+function updateRemoteZoneSettings(context){
+  console.log(JSON.parse(JSON.stringify(context.temporaryZone.items)));
+  console.log(JSON.parse(JSON.stringify(context.temporaryZone)));
+
+  let itemsObject = {};
+  Object.keys(context.temporaryZone.items).forEach(function(key){
+    itemsObject[key] = {"periodicity":
+      context.temporaryZone.items[key].periodicity};
+  });
+
+  let updateObject = {
+    enabled: context.temporaryZone.enabled,
+    max: context.temporaryZone.max,
+    items: itemsObject
+  }
+
+  updateZoneChilds(context.temporaryZone.name, updateObject,
+      function(){
+        console.log("success");
+      },
+      function(){
+        console.log("failed");
+      });
+
+}
 
 export default {
   name: "ZoneSettings",
@@ -89,7 +116,10 @@ export default {
     }
   },
   methods: {
-    closeZoneSettingsDialog: function (){
+    closeZoneSettingsDialog: function (save){
+      if (save) {
+        updateRemoteZoneSettings(this);
+      }
       console.log("DEBUG: ZoneSettings>closeZoneSettingsDialog");
       this.show = false;
       this.$emit("close-zone-settings-dialog");

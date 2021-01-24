@@ -22,6 +22,7 @@
 <script>
 import Zone from "@/components/Zone";
 import ZoneSettings from "@/components/ZoneSettings";
+import {getAllZones} from "@/plugins/firebase"
 
 function openZoneSettingsHandle(zone) {
   console.log("DEBUG Body>openZoneSettingsHandle")
@@ -32,6 +33,19 @@ function openZoneSettingsHandle(zone) {
 function closeZoneSettingsHandle() {
   console.log("DEBUG Body>closeZoneSettingsHandle")
   this.showZoneSettingsDialog  = false;
+
+}
+
+function fetchRemoteZones(context){
+  getAllZones(
+      function(remoteZones){
+        console.log(remoteZones);
+        context.zones = remoteZones;
+  },
+      function (){
+        context.zones = undefined;
+      }
+  )
 }
 
 export default {
@@ -41,7 +55,11 @@ export default {
     ZoneSettings
   },
   props: {
-    zones: Array
+    zones: undefined
+  },
+  methods: {
+    openZoneSettingsHandle,
+    closeZoneSettingsHandle
   },
   data() {
     return {
@@ -49,10 +67,13 @@ export default {
       temporaryZone: undefined
     }
   },
-  methods: {
-    openZoneSettingsHandle,
-    closeZoneSettingsHandle
+  mounted() {
+    this.$nextTick(()=>{
+      let App = this;
+      fetchRemoteZones(App);
+    })
   }
+
 }
 </script>
 

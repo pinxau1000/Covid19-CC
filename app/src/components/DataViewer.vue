@@ -99,10 +99,21 @@ import {zoneColorsReversed} from "@/assets/zone.colors"
 import {getRangeValuesTimestamp} from "@/plugins/firebase";
 
 function getSparklineValuesCallback(objects, context){
-  if (objects === null || Object.values(objects).length < 2) {
+  // No Data on Firebase
+  if (objects === null) {
     context.sparklineValues = [0, 0, 0]; // No Data on Firebase
     context.sparklineLabels = [" ", "No Data Found 😕", " "];
-    // No Data on Firebase
+    context.valuesSum = 0;
+
+  // Only one sample in Firebase
+  } else if (Object.values(objects).length < 2) {
+    context.sparklineValues = [0, 0, 0]; // No Data on Firebase
+    context.sparklineLabels = [" ", "Insufficient Data to Plot  😒", " "];
+    context.valuesSum = Object.values(objects)[0].value;
+    context.dataAndTimestamp =
+    Object.values(JSON.parse(JSON.stringify(objects)));
+
+  // More than two samples on Firebase
   } else {
     let values = [];
     let timestamps = [];

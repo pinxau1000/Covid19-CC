@@ -30,7 +30,10 @@
 export default {
   name: "AppBar",
   props: {
-    title: String
+    title: {
+      type: String,
+      value: "String"
+    }
   },
   data() {
     return {
