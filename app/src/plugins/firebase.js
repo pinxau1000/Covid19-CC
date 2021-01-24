@@ -500,7 +500,7 @@ createSensor("Sala", "Temperatura");
 createZone("Quarto");
 createSensor("Quarto", "Luminosidade");
 createSensor("Quarto", "Temperatura");
- */
+ // */
 
 
 function emulateValueAcquisition(){

@@ -3,7 +3,7 @@
     <v-container>
       <v-row class="justify-center">
           <!-- A Zone component is added for each zone in the zones array -->
-          <Zone v-for="zone in zones"
+          <Zone v-for="zone in zonesLocal"
                 :key="zone.id"
                 :zone="zone"
                 @open-zone-settings-dialog="openZoneSettingsHandle($event)"
@@ -22,7 +22,7 @@
 <script>
 import Zone from "@/components/Zone";
 import ZoneSettings from "@/components/ZoneSettings";
-import {getAllZones} from "@/plugins/firebase"
+import {listeningAllZones} from "@/plugins/firebase"
 
 function openZoneSettingsHandle(zone) {
   console.log("DEBUG Body>openZoneSettingsHandle")
@@ -36,14 +36,13 @@ function closeZoneSettingsHandle() {
 
 }
 
-function fetchRemoteZones(context){
-  getAllZones(
+function listenRemoteZones(context){
+  listeningAllZones(
       function(remoteZones){
-        console.log(remoteZones);
-        context.zones = remoteZones;
-  },
+        context.zonesLocal = remoteZones;
+      },
       function (){
-        context.zones = undefined;
+
       }
   )
 }
@@ -63,6 +62,7 @@ export default {
   },
   data() {
     return {
+      zonesLocal: this.zones,
       showZoneSettingsDialog: false,
       temporaryZone: undefined
     }
@@ -70,10 +70,9 @@ export default {
   mounted() {
     this.$nextTick(()=>{
       let App = this;
-      fetchRemoteZones(App);
+      listenRemoteZones(App);
     })
   }
-
 }
 </script>
 

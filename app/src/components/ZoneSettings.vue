@@ -19,9 +19,13 @@
           </v-btn>
           <v-toolbar-title> Settings </v-toolbar-title>
           <v-spacer/>
+          <v-progress-circular indeterminate
+                               v-show="saveProgress.show"
+          ></v-progress-circular>
           <v-toolbar-items>
             <v-btn dark
                    text
+                   :disabled="saveBtn.disabled"
                    @click.stop="closeZoneSettingsDialog(true)"
             >
               Save
@@ -48,8 +52,9 @@
               />
             </v-col>
             <v-col class="col-12 col-sm pt-0">
-              <v-text-field label="Maximum Capacity"
-                            :value="this.temporaryZone.max"
+              <v-text-field v-model="temporaryZone.max"
+                            label="Maximum Capacity"
+                            :rules="[textField.RuleNumber]"
               />
             </v-col>
           </v-row>
@@ -73,32 +78,22 @@
 <script>
 import ZoneCarousel from "@/components/ZoneCarousel";
 import {zoneColors} from "@/assets/zone.colors";
-import {updateZoneChilds} from "@/plugins/firebase";
+import {updateZoneChilds, updatePeriodicitySensor} from "@/plugins/firebase";
 
 function updateRemoteZoneSettings(context){
-  console.log(JSON.parse(JSON.stringify(context.temporaryZone.items)));
-  console.log(JSON.parse(JSON.stringify(context.temporaryZone)));
-
-  let itemsObject = {};
-  Object.keys(context.temporaryZone.items).forEach(function(key){
-    itemsObject[key] = {"periodicity":
-      context.temporaryZone.items[key].periodicity};
-  });
+  context.saveProgress.show = true;
 
   let updateObject = {
     enabled: context.temporaryZone.enabled,
-    max: context.temporaryZone.max,
-    items: itemsObject
+    max: Number(context.temporaryZone.max),
   }
 
-  updateZoneChilds(context.temporaryZone.name, updateObject,
-      function(){
-        console.log("success");
-      },
-      function(){
-        console.log("failed");
-      });
+  updateZoneChilds(context.temporaryZone.name, updateObject);
 
+  Object.values(context.temporaryZone.items).forEach(function(value){
+    updatePeriodicitySensor(context.temporaryZone.name, value.name,
+        context.temporaryZone.items[value.name].periodicity);
+  });
 }
 
 export default {
@@ -112,7 +107,29 @@ export default {
   data() {
     return {
       show: Boolean,
+      saveProgress: {
+        show: false
+      },
       sparklineGradient: zoneColors,
+      saveBtn: {
+        disabled: true
+      },
+      textField: {
+        RuleNumber: strValue => {
+          if (isNaN(Number(strValue))){
+            this.saveBtn.disabled = true;
+            return "Invalid Number!";
+          } else {
+            if (Number(strValue) > 10000){
+              this.saveBtn.disabled = true;
+              return "Must be less than 10000!";
+            } else {
+              this.saveBtn.disabled = false;
+              return true;
+            }
+          }
+        }
+      }
     }
   },
   methods: {
