@@ -1,8 +1,10 @@
 <template>
   <v-card flat tile>
     <v-window v-model="carousel">
+      <!-- Eager is needed to prevent data loading on switch -->
       <v-window-item v-for="item in items"
                      :key="item.id"
+                     eager
       >
         <v-card>
           <v-card-title>
@@ -11,58 +13,22 @@
 
           <v-card-text>
             <!-- Periocdicity Slider -->
-            <PeriodicitySetter
-                v-bind:value="item.periodicity"
-                v-on:update-periodicity="updatePeriodicityHandle($event, item)"
-                :key="`slider-${item.id}`"
+            <PeriodicitySetter :key="`Slider-${item.id}`"
+                                v-bind:value="item.periodicity"
+                                v-on:update-periodicity="updatePeriodicityHandle($event, item)"
             />
 
+            <!-- Divider -->
             <v-row>
               <v-col>
                 <v-divider/>
               </v-col>
             </v-row>
 
-            <!-- Sparkline Graph DateTime Range Selection -->
-            <v-row>
-              <v-col class="col-12 col-sm-6">
-                <v-datetime-picker v-model="startDate"
-                                   label="Start Date">
-                  <template slot="dateIcon">
-                    <v-icon>mdi-calendar</v-icon>
-                  </template>
-                  <template slot="timeIcon">
-                    <v-icon>mdi-clock</v-icon>
-                  </template>
-                </v-datetime-picker>
-              </v-col>
-              <v-col class="col-12 col-sm-6">
-                <v-datetime-picker v-model="endDate"
-                                   label="End Date">
-                  <template slot="dateIcon">
-                    <v-icon>mdi-calendar</v-icon>
-                  </template>
-                  <template slot="timeIcon">
-                    <v-icon>mdi-clock</v-icon>
-                  </template>
-                </v-datetime-picker>
-              </v-col>
-            </v-row>
-
-            <!-- Sparkline Graph -->
-            <v-row>
-              <v-col>
-                <v-sheet class="transparent">
-                  <!-- smooth defaults to 8 -->
-                  <v-sparkline :gradient="sparklineGradient"
-                               :value="sparklineValues()"
-                               :smooth="true"
-                               :fill="true"
-                               :labels="sparklineLabels()"
-                  />
-                </v-sheet>
-              </v-col>
-            </v-row>
+            <DataViewer :key="`DataViewer-${item.id}`"
+                        :item="item"
+                        :zone-name="zoneName"
+            />
 
           </v-card-text>
         </v-card>
@@ -105,55 +71,37 @@
 </template>
 
 <script>
-import {zoneColors} from "@/assets/zone.colors"
 import PeriodicitySetter from "@/components/PeriodicitySetter";
+import DataViewer from "@/components/DataViewer";
 
 export default {
   name: "ZoneCarousel",
-  components: {PeriodicitySetter},
+  components: {DataViewer, PeriodicitySetter},
   props: {
-    items: undefined
-  },
-  data() {
-    return {
-      // Carousel
-      carousel: 0,
-      parsedItems: Object.values(JSON.parse(JSON.stringify(this.items))),
-
-      // Sparkline
-      sparklineGradient: zoneColors,
-      sparklineValues: function() {
-        console.log("TODO Add items values!");
-        return [0, 2, 5, 9, 5, 10, 3, 5, 0, 0, 1, 8, 2, 9, 0];
-      },
-      sparklineLabels: function() {
-        console.log("TODO Add items timestamp!");
-        return [0, 2, 5, 9, 5, 10, 3, 5, 0, 0, 1, 8, 2, 9, 0];
-      },
-
-      // DateTime Picker
-      startDate: new Date(),
-      endDate: new Date()
-    }
+    items: undefined,
+    zoneName: undefined
   },
   methods: {
     next () {
-      console.log(this.parsedItems)
       this.carousel = this.carousel + 1 === this.parsedItems.length
         ? 0
         : this.carousel + 1
     },
     prev () {
-      console.log(this.parsedItems)
       this.carousel = this.carousel - 1 < 0
         ? this.parsedItems.length - 1
         : this.carousel - 1
     },
     updatePeriodicityHandle: function(newPeriodicity, item){
       console.log("DEBUG ZoneCarousel>updatePeriodicityHandle");
-      console.log(newPeriodicity);
-      console.log(this.items);
       this.items[item.name].periodicity = newPeriodicity;
+    }
+  },
+  data() {
+    return {
+      // Carousel
+      carousel: 0,
+      parsedItems: Object.values(JSON.parse(JSON.stringify(this.items)))
     }
   }
 }

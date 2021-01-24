@@ -1,0 +1,180 @@
+<template>
+    <v-row>
+      <v-col>
+        <v-window>
+            <!-- Sparkline Graph DateTime Range Selection -->
+            <v-row>
+              <v-col class="col-12 col-sm-6">
+                <v-datetime-picker v-model="startDate"
+                                   label="Start Date"
+                                   :text-field-props=
+                                       "{prependIcon:'mdi-calendar-arrow-right'}"
+                                   @input="getSparklineValues()"
+                >
+                  <template slot="dateIcon">
+                    <v-icon>mdi-calendar</v-icon>
+                  </template>
+                  <template slot="timeIcon">
+                    <v-icon>mdi-clock</v-icon>
+                  </template>
+                </v-datetime-picker>
+              </v-col>
+              <v-col class="col-12 col-sm-6">
+                <v-datetime-picker v-model="endDate"
+                                   label="End Date"
+                                   :text-field-props=
+                                       "{prependIcon:'mdi-calendar-arrow-left'}"
+                                   @input="getSparklineValues()"
+                >
+                  <template slot="dateIcon">
+                    <v-icon>mdi-calendar</v-icon>
+                  </template>
+                  <template slot="timeIcon">
+                    <v-icon>mdi-clock</v-icon>
+                  </template>
+                </v-datetime-picker>
+              </v-col>
+            </v-row>
+
+            <!-- Sparkline Graph -->
+            <v-row>
+              <v-col>
+                <v-sheet class="transparent">
+                  <!-- smooth defaults to 8 -->
+                  <v-sparkline :gradient="sparklineGradient"
+                               :value="sparklineValues"
+                               :labels="sparklineLabels"
+                               :smooth="true"
+                               :fill="true"
+                               height="100%"
+                  />
+                </v-sheet>
+              </v-col>
+            </v-row>
+
+            <div v-if="dataAndTimestamp" class="elevation-4 table">
+              <v-row>
+                <v-col class="col-6">
+                  <h3 class="text-center">
+                    Value
+                  </h3>
+                </v-col>
+                <v-col class="col-6">
+                  <h3 class="text-center">
+                    Date
+                  </h3>
+                </v-col>
+              </v-row>
+              <v-row>
+                <v-col class="col-12">
+                  <v-virtual-scroll :item-height="50"
+                                    :height="200"
+                                    :items="dataAndTimestamp"
+                  >
+                    <v-list>
+                      <v-list-item v-for="data in this.dataAndTimestamp"
+                                   :key="`LogList-${data.timestamp}`"
+                      >
+                        <v-list-item-content>
+                          <v-row>
+                            <v-col class="align-self-center">
+                              <v-list-item-title v-text="data.value"
+                                                 class="text-center"
+                              />
+                            </v-col>
+                            <v-col>
+                              <v-list-item-title
+                                  v-text="new Date(data.timestamp).toISOString().replace('T',' @ ').slice(0, -5)"
+                                  class="text-center"
+                              />
+                            </v-col>
+                          </v-row>
+
+                        </v-list-item-content>
+                    </v-list-item>
+                  </v-list>
+                </v-virtual-scroll>
+              </v-col>
+            </v-row>
+          </div>
+
+        </v-window>
+      </v-col>
+    </v-row>
+</template>
+
+<script>
+import {zoneColorsReversed} from "@/assets/zone.colors"
+import {getRangeValuesTimestamp} from "@/plugins/firebase";
+
+function getSparklineValuesCallback(objects, context){
+  if (objects === null || Object.values(objects).length < 2) {
+    context.sparklineValues = [0, 0, 0]; // No Data on Firebase
+    context.sparklineLabels = [" ", "No Data Found 😕", " "];
+    // No Data on Firebase
+  } else {
+    let values = [];
+    let timestamps = [];
+    for (let obj of Object.values(objects)){
+      // Gets value (to sparkline)
+      values.push(obj.value);
+
+      // Time stamp is hard to see, setting blank!
+      timestamps.push(" ");
+
+    }
+
+    // Gets al data for logging
+    context.dataAndTimestamp =
+        Object.values(JSON.parse(JSON.stringify(objects)));
+    context.sparklineValues = values;
+    context.sparklineLabels = timestamps;
+  }
+}
+
+export default {
+  name: "DataViewer",
+  props: {
+    item: undefined,
+    zoneName: undefined
+  },
+  data() {
+    return {
+      itemLocal: this.item,
+      zoneNameLocal: this.zoneName,
+
+      // DateTime Picker
+      endDate: undefined,
+      startDate: undefined,
+
+      // Sparkline
+      sparklineGradient: zoneColorsReversed,
+      sparklineValues: undefined,
+      sparklineLabels: undefined,
+      getSparklineValues: function() {
+        getRangeValuesTimestamp(this.zoneNameLocal, this.itemLocal.name,
+            this.startDate.getTime(), this.endDate.getTime(),
+            objects => getSparklineValuesCallback(objects, this));
+      },
+
+      // Log
+      dataAndTimestamp: undefined
+    }
+  },
+  mounted() {
+    this.$nextTick(() => {
+      let now = new Date();
+      this.endDate = now;
+      this.startDate = new Date(now.getTime() - (1000*60*60)) // Last Hour
+
+      getRangeValuesTimestamp(this.zoneNameLocal, this.itemLocal.name,
+            this.startDate.getTime(), this.endDate.getTime(),
+            objects => getSparklineValuesCallback(objects, this));
+    });
+  }
+}
+</script>
+
+<style scoped>
+
+</style>

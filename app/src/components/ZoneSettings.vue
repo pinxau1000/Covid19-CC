@@ -49,7 +49,7 @@
             </v-col>
             <v-col class="col-12 col-sm pt-0">
               <v-text-field label="Maximum Capacity"
-                            :value="this.temporaryZone.total"
+                            :value="this.temporaryZone.max"
               />
             </v-col>
           </v-row>
@@ -60,7 +60,9 @@
             </v-col>
           </v-row>
 
-          <ZoneCarousel :items.sync="temporaryZone.items"/>
+          <ZoneCarousel :items.sync="temporaryZone.items"
+                        :zone-name="temporaryZone.name"
+          />
 
         </v-card-text>
       </v-card>
@@ -70,6 +72,7 @@
 
 <script>
 import ZoneCarousel from "@/components/ZoneCarousel";
+import {zoneColors} from "@/assets/zone.colors";
 
 export default {
   name: "ZoneSettings",
@@ -82,6 +85,7 @@ export default {
   data() {
     return {
       show: Boolean,
+      sparklineGradient: zoneColors,
     }
   },
   methods: {

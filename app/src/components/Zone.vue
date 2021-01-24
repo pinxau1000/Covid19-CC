@@ -25,7 +25,7 @@
       </span>
       <v-spacer/>
       <span class="justify-end">
-        {{ zone.current }} / {{ zone.total }}
+        {{ zone.current }} / {{ zone.max }}
       </span>
       </v-card-title>
       <v-card-text>
@@ -60,12 +60,12 @@ export default {
           return zoneColorDisabled;
       }
 
-      if (this.zone.total === 0){
+      if (this.zone.max === 0){
           return zoneColorsAlpha[0];
       }
 
       let idx = Math.round(
-          this.zone.current*zoneColorsAlpha.length/this.zone.total
+          this.zone.current*zoneColorsAlpha.length/this.zone.max
       );
 
       return (idx >= zoneColorsAlpha.length) ?

@@ -53,9 +53,9 @@ function uuidv4() {
  * @param failureCallback A function that is called when the request fails
  * with the error as parameter.
  * @param current The current number of people in the zone. Default to 0.
- * @param total The total number of people allowed in the zone. Default to 0.
+ * @param max The max number of people allowed in the zone. Default to 0.
  */
-const createZone = function(zoneName, successCallback, failureCallback, current=0, total=0){
+const createZone = function(zoneName, successCallback, failureCallback, current=0, max=0){
     // successCallback is optional
     successCallback =  (typeof(successCallback) !== "function") ? function(value){return value} : successCallback;
     // failureCallback is optional
@@ -66,7 +66,7 @@ const createZone = function(zoneName, successCallback, failureCallback, current=
         id: uuid,
         name: zoneName,
         current: current,
-        total: total,
+        max: max,
         enabled: true,
         items: []
     }).then(successCallback(uuid)).catch(error => failureCallback(error));
@@ -290,12 +290,12 @@ const updateCurrent = function(zoneName, value, successCallback, failureCallback
     updateValue(zoneName, "current", value, successCallback, failureCallback);
 }
 
-const getTotal = function(zoneName, successCallback, failureCallback){
-    getValue(zoneName, "total", successCallback, failureCallback);
+const getMax = function(zoneName, successCallback, failureCallback){
+    getValue(zoneName, "max", successCallback, failureCallback);
 }
 
-const updateTotal = function(zoneName, value, successCallback, failureCallback){
-    updateValue(zoneName, "total", value, successCallback, failureCallback);
+const updateMax = function(zoneName, value, successCallback, failureCallback){
+    updateValue(zoneName, "max", value, successCallback, failureCallback);
 }
 
 const getEnabled = function(zoneName, successCallback, failureCallback){
@@ -491,6 +491,8 @@ const incrementCurrent = function(zoneName, N, successCallback, failureCallback)
         .catch(error => failureCallback(error));
 }
 
+newSensorValueNow("Casa", "teste1", Math.random());
+
 // Initialize and Export Firebase
 export {
     database,
@@ -517,8 +519,8 @@ export {
     getName,
     updateCurrent,
     getCurrent,
-    updateTotal,
-    getTotal,
+    updateMax,
+    getMax,
     updateEnabled,
     getEnabled,
     incrementCurrent,       // Increment/Decrement Current Value by N units
