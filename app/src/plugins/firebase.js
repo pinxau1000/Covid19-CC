@@ -409,6 +409,13 @@ const getLastValues = function(zoneName, sensorName, nLastValues, successCallbac
         .catch(error => failureCallback(error));
 }
 
+const listeningLastValues = function(zoneName, sensorName, nLastValues, successCallback, failureCallback){
+    // failureCallback is optional
+    failureCallback =  (typeof(failureCallback) !== "function") ? function(error){return error} : failureCallback;
+
+    let lastValuesRef = valuesRef.child(zoneName).child(sensorName).limitToLast(nLastValues);
+    lastValuesRef.on("value" ,dataSnapshot => successCallback(dataSnapshot.toJSON()), failureCallback);
+}
 
 /**
  * Retrieves the first N acquired values in a given sensor.
@@ -521,5 +528,6 @@ export {
     // listening
     listeningAllZones,
     listeningEnabled,
-    listeningPeriodicity
+    listeningPeriodicity,
+    listeningLastValues
 }

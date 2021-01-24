@@ -32,6 +32,7 @@
         <ZoneItem v-for="item in zone.items"
                   v-bind:key="item.id"
                   v-bind:item="item"
+                  v-bind:zone-name="zone.name"
         />
       </v-card-text>
     </v-card>
