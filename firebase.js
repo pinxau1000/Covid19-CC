@@ -86,7 +86,7 @@ const getZone = function(zoneName, successCallback, failureCallback){
     // failureCallback is optional
     failureCallback =  (typeof(failureCallback) !== "function") ? function(error){return error} : failureCallback;
 
-    zonesRef.once("value")
+    zonesRef.child(zoneName).once("value")
         .then(dataSnapshot => successCallback(dataSnapshot.toJSON()))
         .catch(error => failureCallback(error));
 }
@@ -132,7 +132,7 @@ const deleteZone = function(zoneName, successCallback, failureCallback){
     // failureCallback is optional
     failureCallback =  (typeof(failureCallback) !== "function") ? function(error){return error} : failureCallback;
 
-    zonesRef.remove()
+    zonesRef.child(zoneName).remove()
         .then(function(){
             database.ref("_secrets").child(zoneName).remove()
                 .then(successCallback)
@@ -177,7 +177,7 @@ const getSensor = function(zoneName, sensorName, successCallback, failureCallbac
     // failureCallback is optional
     failureCallback =  (typeof(failureCallback) !== "function") ? function(error){return error} : failureCallback;
 
-    zonesRef.child("items").child(sensorName).once("value")
+    zonesRef.child(zoneName).child("items").child(sensorName).once("value")
         .then(dataSnapshot => successCallback(dataSnapshot.toJSON()))
         .catch(error => failureCallback(error));
 }
@@ -193,7 +193,7 @@ const getAllSensors = function(zoneName, successCallback, failureCallback){
     // failureCallback is optional
     failureCallback =  (typeof(failureCallback) !== "function") ? function(error){return error} : failureCallback;
 
-    zonesRef.child("items").once("value")
+    zonesRef.child(zoneName).child("items").once("value")
         .then(dataSnapshot => successCallback(dataSnapshot.toJSON()))
         .catch(error => failureCallback(error));
 }
@@ -211,7 +211,7 @@ const deleteSensor = function(zoneName, sensorName, successCallback, failureCall
     // failureCallback is optional
     failureCallback =  (typeof(failureCallback) !== "function") ? function(error){return error} : failureCallback;
 
-    zonesRef.child("items").child(sensorName).remove().then(successCallback).catch(error => failureCallback(error));
+    zonesRef.child(zoneName).child("items").child(sensorName).remove().then(successCallback).catch(error => failureCallback(error));
 }
 
 /**
@@ -266,7 +266,7 @@ const updateZoneChild = function(zoneName, key, value, successCallback, failureC
     // failureCallback is optional
     failureCallback =  (typeof(failureCallback) !== "function") ? function(error){return error} : failureCallback;
 
-    zonesRef.update({
+    zonesRef.child(zoneName).update({
         [key]: value
     }).then(successCallback).catch(error => failureCallback(error));
 }
@@ -284,7 +284,7 @@ const updateZoneChilds = function(zoneName, object, successCallback, failureCall
     // failureCallback is optional
     failureCallback =  (typeof(failureCallback) !== "function") ? function(error){return error} : failureCallback;
 
-    zonesRef.update(object).then(successCallback).catch(error => failureCallback(error));
+    zonesRef.child(zoneName).update(object).then(successCallback).catch(error => failureCallback(error));
 }
 
 /**
@@ -299,7 +299,7 @@ const getZoneChild = function(zoneName, key, successCallback, failureCallback){
     // failureCallback is optional
     failureCallback =  (typeof(failureCallback) !== "function") ? function(error){return error} : failureCallback;
 
-    zonesRef.child(key).once("value")
+    zonesRef.child(zoneName).child(key).once("value")
         .then(dataSnapshot => successCallback(dataSnapshot.toJSON()))
         .catch(error => failureCallback(error));
 }
@@ -336,7 +336,7 @@ const listeningEnabled = function(zoneName, successCallback, failureCallback){
     // failureCallback is optional
     failureCallback =  (typeof(failureCallback) !== "function") ? function(error){return error} : failureCallback;
 
-    zonesRef.child("enabled")
+    zonesRef.child(zoneName).child("enabled")
         .on("value",dataSnapshot => successCallback(dataSnapshot.toJSON()), failureCallback);
 }
 
@@ -351,7 +351,7 @@ const getPeriodicitySensor = function(zoneName, sensorName, successCallback, fai
     // failureCallback is optional
     failureCallback =  (typeof(failureCallback) !== "function") ? function(error){return error} : failureCallback;
 
-    zonesRef.child("items").child(sensorName).child("periodicity").once("value")
+    zonesRef.child(zoneName).child("items").child(sensorName).child("periodicity").once("value")
         .then(dataSnapshot => successCallback(dataSnapshot.toJSON()))
         .catch(error => failureCallback(error));
 }
@@ -370,7 +370,7 @@ const updatePeriodicitySensor = function(zoneName, sensorName, periodicity, succ
     // failureCallback is optional
     failureCallback =  (typeof(failureCallback) !== "function") ? function(error){return error} : failureCallback;
 
-    zonesRef.child("items").child(sensorName).update({
+    zonesRef.child(zoneName).child("items").child(sensorName).update({
         "periodicity": periodicity
     }).then(successCallback).catch(error => failureCallback(error));
 }
@@ -388,7 +388,7 @@ const listeningPeriodicity = function(zoneName, sensorName, successCallback, fai
         return error
     } : failureCallback;
 
-    zonesRef.child("items").child(sensorName).child("periodicity")
+    zonesRef.child(zoneName).child("items").child(sensorName).child("periodicity")
         .on("value", dataSnapshot => successCallback(dataSnapshot.toJSON()), failureCallback);
 }
 
@@ -447,25 +447,6 @@ const getRangeValuesTimestamp = function(zoneName, sensorName, startTimestamp, e
 }
 
 /**
- * Retrieves the values between a min and max value for a given sensor
- * @param zoneName The zone name.
- * @param sensorName The sensor name.
- * @param successCallback The success callback.
- * @param failureCallback The failure callback.
- */
-const getRangeValuesValue = function(zoneName, sensorName, minValue, maxValue, successCallback, failureCallback){
-    // failureCallback is optional
-    failureCallback =  (typeof(failureCallback) !== "function") ? function(error){return error} : failureCallback;
-
-    let ref = valuesRef.child(zoneName).child(sensorName).orderByChild("value")
-        .startAt(minValue).endAt(maxValue);
-
-    ref.once("value")
-        .then(dataSnapshot => successCallback(dataSnapshot.toJSON()))
-        .catch(error => failureCallback(error));
-}
-
-/**
  * Retrieves the last update instant for a given sensor. Meant to be used by
  * the edge device to update periodically.
  * @param zoneName The zone name.
@@ -491,7 +472,7 @@ const incrementCurrent = function(zoneName, N, successCallback, failureCallback)
     // failureCallback is optional
     failureCallback =  (typeof(failureCallback) !== "function") ? function(error){return error} : failureCallback;
 
-    zonesRef.child("current")
+    zonesRef.child(zoneName).child("current")
         .transaction(function(current_value){
             return current_value+N
         })
@@ -500,7 +481,7 @@ const incrementCurrent = function(zoneName, N, successCallback, failureCallback)
 }
 
 
-/* INITIALIZATION
+/* FIXME INITIALIZATION
 createZone("Cozinha");
 createSensor("Cozinha", "Temperatura");
 createSensor("Cozinha", "Humidade");
@@ -515,7 +496,12 @@ createSensor("Wall Entrada", "Desinfetante");
 createZone("Sala");
 createSensor("Sala", "Luminosidade");
 createSensor("Sala", "Temperatura");
+
+createZone("Quarto");
+createSensor("Quarto", "Luminosidade");
+createSensor("Quarto", "Temperatura");
  */
+
 
 function emulateValueAcquisition(){
     newSensorValueNow("Cozinha", "Temperatura", Math.random());
@@ -523,15 +509,15 @@ function emulateValueAcquisition(){
     newSensorValueNow("Cozinha", "Entradas", Math.random());
     newSensorValueNow("Cozinha", "Saídas", Math.random());
 
-
     newSensorValueNow("Wall Entrada", "Entradas", Math.random());
     newSensorValueNow("Wall Entrada", "Saídas", Math.random());
     newSensorValueNow("Wall Entrada", "Desinfetante", Math.random());
     newSensorValueNow("Cozinha", "Saídas", Math.random());
 
-
     newSensorValueNow("Sala", "Luminosidade", Math.random());
     newSensorValueNow("Sala", "Temperatura", Math.random());
+
+    newSensorValueNow("Quarto", "Luminosidade", Math.random());
 
     setTimeout(emulateValueAcquisition, Math.round(Math.random()*10000));
 }
@@ -577,7 +563,6 @@ export {
     getFirstValues,         // Gets the first values pushed to the sensor
     getLastValues,          // Gets the last values pushed to the sensor
     getRangeValuesTimestamp,// Gets the values between two timestamps
-    getRangeValuesValue,    // Gets the values between min and max range
 
     // listening
     listeningAllZones,
