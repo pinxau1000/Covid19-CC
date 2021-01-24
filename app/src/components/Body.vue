@@ -1,21 +1,21 @@
 <template>
   <v-main>
-    <v-container>
-      <v-row class="justify-center">
-          <!-- A Zone component is added for each zone in the zones array -->
-          <Zone v-for="zone in zonesLocal"
-                :key="zone.id"
-                :zone="zone"
-                @open-zone-settings-dialog="openZoneSettingsHandle($event)"
-          />
-      </v-row>
-    </v-container>
-    <!-- A Component that build a dialog with the a specific zone settings -->
-    <ZoneSettings v-if="showZoneSettingsDialog===true"
-                  :show="showZoneSettingsDialog"
-                  :temporary-zone="temporaryZone"
-                  @close-zone-settings-dialog="closeZoneSettingsHandle"
-    />
+      <v-container>
+        <v-row class="justify-center">
+            <!-- A Zone component is added for each zone in the zones array -->
+            <Zone v-for="zone in zonesLocal"
+                  :key="zone.id"
+                  :zone="zone"
+                  @open-zone-settings-dialog="openZoneSettingsHandle($event)"
+            />
+        </v-row>
+      </v-container>
+      <!-- A Component that build a dialog with the a specific zone settings -->
+      <ZoneSettings v-if="showZoneSettingsDialog===true"
+                    :show="showZoneSettingsDialog"
+                    :temporary-zone="temporaryZone"
+                    @close-zone-settings-dialog="closeZoneSettingsHandle"
+      />
   </v-main>
 </template>
 
