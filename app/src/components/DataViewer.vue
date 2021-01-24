@@ -76,8 +76,8 @@
                   :key="`LogTable-${idx}`"
                 >
                   <td>{{ data.value }}</td>
-                  <td>{{ new Date(data.timestamp).toISOString().split('T')[0] }}</td>
-                  <td>{{ new Date(data.timestamp).toISOString().split('T')[1].slice(0, -5) }}</td>
+                  <td>{{ getFullDate(data.timestamp) }}</td>
+                  <td>{{ getFullTime(data.timestamp) }}</td>
                 </tr>
               </tbody>
               <tfoot>
@@ -104,14 +104,14 @@ function getSparklineValuesCallback(objects, context){
     context.sparklineValues = [0, 0, 0]; // No Data on Firebase
     context.sparklineLabels = [" ", "No Data Found 😕", " "];
     context.valuesSum = 0;
+    context.dataAndTimestamp = [];
 
   // Only one sample in Firebase
   } else if (Object.values(objects).length < 2) {
     context.sparklineValues = [0, 0, 0]; // No Data on Firebase
     context.sparklineLabels = [" ", "Insufficient Data to Plot  😒", " "];
     context.valuesSum = Object.values(objects)[0].value;
-    context.dataAndTimestamp =
-    Object.values(JSON.parse(JSON.stringify(objects)));
+    context.dataAndTimestamp = Object.values(JSON.parse(JSON.stringify(objects)));
 
   // More than two samples on Firebase
   } else {
@@ -162,7 +162,13 @@ export default {
 
       // Log
       dataAndTimestamp: undefined,
-      valuesSum: undefined
+      valuesSum: undefined,
+      getFullDate: function(timestamp){
+        return new Date(timestamp).toISOString().split('T')[0];
+      },
+      getFullTime: function(timestamp){
+        return new Date(timestamp).toISOString().split('T')[1].slice(0, -5);
+      }
     }
   },
   mounted() {

@@ -480,52 +480,6 @@ const incrementCurrent = function(zoneName, N, successCallback, failureCallback)
         .catch(error => failureCallback(error));
 }
 
-
-/* FIXME INITIALIZATION
-createZone("Cozinha");
-createSensor("Cozinha", "Temperatura");
-createSensor("Cozinha", "Humidade");
-createSensor("Cozinha", "Entradas");
-createSensor("Cozinha", "Saídas");
-
-createZone("Wall Entrada");
-createSensor("Wall Entrada", "Entradas");
-createSensor("Wall Entrada", "Saídas");
-createSensor("Wall Entrada", "Desinfetante");
-
-createZone("Sala");
-createSensor("Sala", "Luminosidade");
-createSensor("Sala", "Temperatura");
-
-createZone("Quarto");
-createSensor("Quarto", "Luminosidade");
-createSensor("Quarto", "Temperatura");
- // */
-
-
-function emulateValueAcquisition(){
-    newSensorValueNow("Cozinha", "Temperatura", Math.random());
-    newSensorValueNow("Cozinha", "Humidade", Math.random());
-    newSensorValueNow("Cozinha", "Entradas", Math.random());
-    newSensorValueNow("Cozinha", "Saídas", Math.random());
-
-    newSensorValueNow("Wall Entrada", "Entradas", Math.random());
-    newSensorValueNow("Wall Entrada", "Saídas", Math.random());
-    newSensorValueNow("Wall Entrada", "Desinfetante", Math.random());
-    newSensorValueNow("Cozinha", "Saídas", Math.random());
-
-    newSensorValueNow("Sala", "Luminosidade", Math.random());
-    newSensorValueNow("Sala", "Temperatura", Math.random());
-
-    newSensorValueNow("Quarto", "Luminosidade", Math.random());
-
-    setTimeout(emulateValueAcquisition, Math.round(Math.random()*10000));
-}
-
-emulateValueAcquisition();
-
-
-
 // Initialize and Export Firebase
 export {
     database,

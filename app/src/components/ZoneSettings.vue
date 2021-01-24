@@ -137,7 +137,6 @@ export default {
       if (save) {
         updateRemoteZoneSettings(this);
       }
-      console.log("DEBUG: ZoneSettings>closeZoneSettingsDialog");
       this.show = false;
       this.$emit("close-zone-settings-dialog");
     }

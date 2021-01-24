@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <AppBar/>
+    <AppBar title="$UserName"/>
 
     <v-main>
       <Body/>

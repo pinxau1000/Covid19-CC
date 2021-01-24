@@ -30,10 +30,7 @@
 export default {
   name: "AppBar",
   props: {
-    title: {
-      type: String,
-      value: "String"
-    }
+    title: String,
   },
   data() {
     return {
@@ -42,7 +39,6 @@ export default {
   },
   methods: {
     searchZones: function() {
-      console.log("TODO: Search");
       this.clearQuery();
     },
     clearQuery: function() {

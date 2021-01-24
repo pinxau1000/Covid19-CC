@@ -93,7 +93,6 @@ export default {
         : this.carousel - 1
     },
     updatePeriodicityHandle: function(newPeriodicity, item){
-      console.log("DEBUG ZoneCarousel>updatePeriodicityHandle");
       this.items[item.name].periodicity = newPeriodicity;
     }
   },

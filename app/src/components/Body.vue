@@ -25,13 +25,11 @@ import ZoneSettings from "@/components/ZoneSettings";
 import {listeningAllZones} from "@/plugins/firebase"
 
 function openZoneSettingsHandle(zone) {
-  console.log("DEBUG Body>openZoneSettingsHandle")
   this.showZoneSettingsDialog  = true;
   this.temporaryZone = JSON.parse(JSON.stringify(zone));  // Clones the Object!
 }
 
 function closeZoneSettingsHandle() {
-  console.log("DEBUG Body>closeZoneSettingsHandle")
   this.showZoneSettingsDialog  = false;
 
 }
