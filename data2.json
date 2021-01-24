@@ -5,13 +5,29 @@
     "total": 30,
     "periodicityDoors": 5,
     "periodicityLeds": 5,
-    "enable": "true",
+    "enabled": "true",
     "items": [
         {
             "id": "601af232-7c47-4751-af21-36b79b5999bc",
             "name": "Entrada Norte",
-            "value": 3,
-            "timestamp": 1611822803
+			"values": [
+				{
+					"value": 3,
+					"timestamp": 1611822803
+				},
+				{
+					"value": 3,
+					"timestamp": 1611822803
+				},
+				{
+					"value": 3,
+					"timestamp": 1611822803
+				},
+				{
+					"value": 3,
+					"timestamp": 1611822803
+				}
+			]
         },
         {
             "id": "a9842da0-a4a1-4d69-b4a4-b29bf0b0457f",

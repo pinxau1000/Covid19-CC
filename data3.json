@@ -6,7 +6,7 @@
         "total": 30,
         "periodicityDoors": 5,
         "periodicityLeds": 5,
-        "enable": "true",
+        "enabled": "true",
         "items": [
             {
                 "id": "601af232-7c47-4751-af21-36b79b5999bc",
@@ -65,7 +65,7 @@
         "total": 30,
         "periodicityDoors": 5,
         "periodicityLeds": 5,
-        "enable": "true",
+        "enabled": "true",
         "items": [
             {
                 "id": "601af232-7c47-4751-af21-36b79b5999bc",
@@ -124,7 +124,7 @@
         "total": 30,
         "periodicityDoors": 5,
         "periodicityLeds": 5,
-        "enable": "true",
+        "enabled": "true",
         "items": [
             {
                 "id": "601af232-7c47-4751-af21-36b79b5999bc",
@@ -183,7 +183,7 @@
         "total": 30,
         "periodicityDoors": 5,
         "periodicityLeds": 5,
-        "enable": "true",
+        "enabled": "true",
         "items": [
             {
                 "id": "601af232-7c47-4751-af21-36b79b5999bc",
@@ -242,7 +242,7 @@
         "total": 30,
         "periodicityDoors": 5,
         "periodicityLeds": 5,
-        "enable": "true",
+        "enabled": "true",
         "items": [
             {
                 "id": "601af232-7c47-4751-af21-36b79b5999bc",
@@ -301,7 +301,7 @@
         "total": 30,
         "periodicityDoors": 5,
         "periodicityLeds": 5,
-        "enable": "true",
+        "enabled": "true",
         "items": [
             {
                 "id": "601af232-7c47-4751-af21-36b79b5999bc",
@@ -360,7 +360,7 @@
         "total": 30,
         "periodicityDoors": 5,
         "periodicityLeds": 5,
-        "enable": "true",
+        "enabled": "true",
         "items": [
             {
                 "id": "601af232-7c47-4751-af21-36b79b5999bc",
@@ -419,7 +419,7 @@
         "total": 30,
         "periodicityDoors": 5,
         "periodicityLeds": 5,
-        "enable": "true",
+        "enabled": "true",
         "items": [
             {
                 "id": "601af232-7c47-4751-af21-36b79b5999bc",
@@ -478,7 +478,7 @@
         "total": 30,
         "periodicityDoors": 5,
         "periodicityLeds": 5,
-        "enable": "true",
+        "enabled": "true",
         "items": [
             {
                 "id": "601af232-7c47-4751-af21-36b79b5999bc",
@@ -537,7 +537,7 @@
         "total": 30,
         "periodicityDoors": 5,
         "periodicityLeds": 5,
-        "enable": "true",
+        "enabled": "true",
         "items": [
             {
                 "id": "601af232-7c47-4751-af21-36b79b5999bc",
@@ -596,7 +596,7 @@
         "total": 30,
         "periodicityDoors": 5,
         "periodicityLeds": 5,
-        "enable": "true",
+        "enabled": "true",
         "items": [
             {
                 "id": "601af232-7c47-4751-af21-36b79b5999bc",
@@ -655,7 +655,7 @@
         "total": 30,
         "periodicityDoors": 5,
         "periodicityLeds": 5,
-        "enable": "true",
+        "enabled": "true",
         "items": [
             {
                 "id": "601af232-7c47-4751-af21-36b79b5999bc",
@@ -714,7 +714,7 @@
         "total": 30,
         "periodicityDoors": 5,
         "periodicityLeds": 5,
-        "enable": "true",
+        "enabled": "true",
         "items": [
             {
                 "id": "601af232-7c47-4751-af21-36b79b5999bc",
@@ -773,7 +773,7 @@
         "total": 30,
         "periodicityDoors": 5,
         "periodicityLeds": 5,
-        "enable": "true",
+        "enabled": "true",
         "items": [
             {
                 "id": "601af232-7c47-4751-af21-36b79b5999bc",
@@ -832,7 +832,7 @@
         "total": 30,
         "periodicityDoors": 5,
         "periodicityLeds": 5,
-        "enable": "true",
+        "enabled": "true",
         "items": [
             {
                 "id": "601af232-7c47-4751-af21-36b79b5999bc",
@@ -891,7 +891,7 @@
         "total": 30,
         "periodicityDoors": 5,
         "periodicityLeds": 5,
-        "enable": "true",
+        "enabled": "true",
         "items": [
             {
                 "id": "601af232-7c47-4751-af21-36b79b5999bc",
