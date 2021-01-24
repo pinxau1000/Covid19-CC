@@ -129,8 +129,7 @@ function getSparklineValuesCallback(objects, context){
     }
 
     // Gets al data for logging
-    context.dataAndTimestamp =
-        Object.values(JSON.parse(JSON.stringify(objects)));
+    context.dataAndTimestamp = Object.values(JSON.parse(JSON.stringify(objects)));
     context.sparklineValues = values;
     context.sparklineLabels = timestamps;
   }
