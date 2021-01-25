@@ -2,43 +2,43 @@
 const app = require('express')();
 const http = require('http').Server(app);
 const io = require('socket.io')(http) //require socket.io module and pass the http object
-//const fs = require('fs'); //require filesystem to read html files
 const Gpio = require('onoff').Gpio; //require onoff to control GPIO
 const port = 8080;
-const LEDred = new Gpio(4, 'out');  //declare GPIO4 an output
-const LEDgreen = new Gpio(3, 'out'); //declare GPIO3 an output
-const pushButton = new Gpio(17, 'in', 'rising', {debounceTimeout: 10});
 const fb = require('./firebase.js')();
+
 
 function compareCapacitySetLed(zone){
   getZone(zone.name, dataSnapshot => {
-    try{
-      let zoneRemote = dataSnapshot.toJSON();
-      if (zoneRemote === null) {
-        // Disabled the LED on fail if zone didn't exists!
-        zone.ledRed.writeSync(0);
-        zone.ledGreen.writeSync(0);
-      } else {
-        if (zone.current >= zone.max) {
-          zone.ledRed.writeSync(1);
-          zone.ledGreen.writeSync(0);
-        } else {
-          zone.ledRed.writeSync(0);
-          zone.ledGreen.writeSync(1);
+        try{
+          // Cannot get all the zone values because the remote zone as not the hardware properties!
+          zone.current = dataSnapshot.current;
+          zone.max = dataSnapshot.max;
+
+          if (zone === null) {
+            // Disabled the LED on fail if zone didn't exists!
+            zone.ledRed.writeSync(0);
+            zone.ledGreen.writeSync(0);
+          } else {
+            if (zone.current >= zone.max) {
+              zone.ledRed.writeSync(1);
+              zone.ledGreen.writeSync(0);
+            } else {
+              zone.ledRed.writeSync(0);
+              zone.ledGreen.writeSync(1);
+            }
+          }
+        }catch (err){
+          // When ledGreen or ledRed is String!
         }
-      }
-    }catch (err){
-      console.log(`${zone.name}`)
-    }
-  },
+      },
       function(){
-    try{
-      // Disabled the LED on fail!
-      zone.ledRed.writeSync(0);
-      zone.ledGreen.writeSync(0);
-    }catch (err){
-      console.log(`${zone.name}`)
-    }
+        try{
+          // Disabled the LED on fail!
+          zone.ledRed.writeSync(0);
+          zone.ledGreen.writeSync(0);
+        }catch (err){
+          console.log(`error2 ${zone.name}`)
+        }
       }
   );
 }
@@ -47,136 +47,192 @@ function setSensorsPeriodocityTimeout(zone, item){
   // Attach a listener on periodicity
   listeningPeriodicity(zone.name, item.name,
       function (new_periodicity) {
-    // If the periodicity value is a number and there are already defined
-    // timeouts then clear the old timeout and add new one with the
-    // updated value.
-    if ((item.timeouts.id !== undefined) && !(isNaN(Number(new_periodicity)))) {
-      clearInterval(item.timeouts.id);
-    }
-    let interv = new_periodicity*1000;
-    item.timeouts.id = setInterval(item.timeouts.action, interv, zone, item, new_periodicity);
-  });
+        // If the periodicity value is a number and there are already defined
+        // timeouts then clear the old timeout and add new one with the
+        // updated value.
+        if (new_periodicity !== null){
+          if (item.timeouts.id !== undefined){
+            clearInterval(item.timeouts.id);
+          }
+          let interv = new_periodicity*1000;
+          item.timeouts.id = setInterval(item.timeouts.action, interv, zone, item, new_periodicity);
 
-  console.log("--------------------------------------------------------")
-  console.log('Zone: ' + zone.name)
-  console.log('Item: ' + item.name)
-  console.log('Periodicity: ' + item.periodicity)
-  console.log('Max: ' + zone.max);
-  console.log('Atual: ' + zone.current);
-  console.log(new Date().toLocaleTimeString('en-US').slice(0, -3));
-  console.log("--------------------------------------------------------")
-  console.log("")
+          console.log("--------------------- SET TIMEOUT ----------------------");
+          console.log('Zone: ' + zone.name);
+          console.log('Item: ' + item.name);
+          console.log('Periodicity: ' + new_periodicity);
+          console.log('Max: ' + zone.max);
+          console.log('Atual: ' + zone.current);
+          console.log(new Date().toLocaleTimeString('en-US').slice(0, -3));
+          console.log("--------------------------------------------------------");
+          console.log("");
+        }});
 
 }
 
+const itemaction = function(zone, item, period){
+  Object.values(item.values).forEach(entry => {
+    newSensorValue(zone.name, item.name, entry.value, entry.timestamp, function(){
+      console.log(`\t - ${item.name}: ${entry.value}`);
+      item.values = [];
+    });
+  })
+}
+
+const zoneaction = function (zone) {
+  updateCurrent(zone.name, zone.current, function(){
+    console.log(` - ${zone.name}: ${zone.current}`);
+  });
+  compareCapacitySetLed(zone);
+}
 
 /**
  * Sensors in each zone
  */
-let sensors = [
+const sensorsBiblioteca = [
   {
     name: "Entrada",
-    periodicity: 10,
+    periodicity: 5,
     timeouts: {
       id: undefined,
-      action: function(zone, item, period){
-        console.log(`${zone.name} -> ${item.name} : ${period}`);
-        newSensorValueNow(zone.name, item.name, 1);
-      }
-    }
+      action: itemaction
+    },
+    values: [],
+    last: 0
   },
   {
     name: "Saída",
-    periodicity: 20,
+    periodicity: 5,
     timeouts: {
       id: undefined,
-      action: function(zone, item, period){
-        console.log(`${zone.name} -> ${item.name} : ${period}`);
-        newSensorValueNow(zone.name, item.name, 2);
-      }
-    }
+      action: itemaction
+    },
+    values: [],
+    last: 0
   },
   {
     name: "Desinfetante",
-    periodicity: 30,
+    periodicity: 5,
     timeouts: {
       id: undefined,
-      action: function(zone, item, period){
-        console.log(`${zone.name} -> ${item.name} : ${period}`);
-        newSensorValueNow(zone.name, item.name, 3);
-      }
-    }
+      action: itemaction
+    },
+    values: [],
+    last: 0
+  }
+]
+
+const sensorsRefeitorio = [
+  {
+    name: "Entrada",
+    periodicity: 5,
+    timeouts: {
+      id: undefined,
+      action: itemaction
+    },
+    values: [],
+    last: 0
+  },
+  {
+    name: "Saída",
+    periodicity: 5,
+    timeouts: {
+      id: undefined,
+      action: itemaction
+    },
+    values: [],
+    last: 0
+  },
+  {
+    name: "Desinfetante",
+    periodicity: 5,
+    timeouts: {
+      id: undefined,
+      action: itemaction
+    },
+    values: [],
+    last: 0
+  }
+]
+
+const sensorsSalaInformatica = [
+  {
+    name: "Entrada",
+    periodicity: 5,
+    timeouts: {
+      id: undefined,
+      action: itemaction
+    },
+    values: [],
+    last: 0
+  },
+  {
+    name: "Saída",
+    periodicity: 5,
+    timeouts: {
+      id: undefined,
+      action: itemaction
+    },
+    values: [],
+    last: 0
+  },
+  {
+    name: "Desinfetante",
+    periodicity: 5,
+    timeouts: {
+      id: undefined,
+      action: itemaction
+    },
+    values: [],
+    last: 0
   }
 ]
 
 /**
  * All zones in this raspberry
  */
-let zones = [
+var zones = [
   {
-    name: "Biblioteca-3",
+    name: "Biblioteca",
     current: 0,
     max: 40,
     enabled: true,
-    items: sensors,
+    items: sensorsBiblioteca,
     ledRed: new Gpio(4, 'out'),
     ledGreen: new Gpio(3, 'out'),
+    pushBtn: new Gpio(17, 'in', 'rising', {debounceTimeout: 10}),
     timeouts: {
       id: undefined,
-      action: function (zone) {
-        compareCapacitySetLed(zone);
-      }
+      action: zoneaction
     }
   },
   {
-    name: "Sala-Robotica-3",
+    name: "Refeitorio",
     current: 0,
     max: 10,
     enabled: true,
-    items: sensors,
-    ledRed: "id-some-html-element",
-    ledGreen: "id-some-html-element",
+    items: sensorsRefeitorio,
+    ledRed: new Gpio(22, 'out'),
+    ledGreen: new Gpio(27, 'out'),
     timeouts: {
       id: undefined,
-      action: function (zone) {
-        compareCapacitySetLed(zone);
-      }
+      action: zoneaction
     }
   },
   {
-    name: "Sala-Informatica-3",
+    name: "Sala-Informatica",
     current: 0,
     max: 15,
     enabled: true,
-    items: sensors,
-    ledRed: "id-some-html-element",
-    ledGreen: "id-some-html-element",
+    items: sensorsSalaInformatica,
+    ledRed: new Gpio(9, 'out'),
+    ledGreen: new Gpio(10, 'out'),
     timeouts: {
       id: undefined,
-      action: function (zone) {
-        compareCapacitySetLed(zone);
-      }
+      action: zoneaction
     }
   }
 ]
-
-
-// FIXME Check if function is needed
-function writeLedStatus(led, value) {
-  if (led instanceof Gpio) {
-    led.writeSync(value);
-
-    /* TODO HTML Elements
-    } else if (typeof(led) === typeof(String)) {
-      if (value === 1) {
-        $("led").css("color", value);
-      } else {
-        $("led").css("color", "black");
-      }
-    }
-    // */
-  }
-}
 
 function initialization(){
   for (let zone of zones){
@@ -189,7 +245,7 @@ function initialization(){
       if (value){
         // Enables timeout for periodicity on all sensors with zone is enabled
         Object.values(zone.items).forEach(item => {
-          setSensorsPeriodocityTimeout(zone, item)
+          setSensorsPeriodocityTimeout(zone, item);
         });
 
         // Creates timeout that read from time to time the current and total
@@ -211,44 +267,47 @@ function initialization(){
         // Also disabled the LEDs
         zone.ledRed.writeSync(0);
         zone.ledGreen.writeSync(0);
+
+        // Limpa o histórico de valores
+        item.values = [];
       }
     });
+
+    // Attach watcher/listen to push button of each zone
+    try{
+      zone.pushBtn.watch((err, value) => {
+        if (err) {
+          throw err;
+        }
+
+        let i_idx;
+        Object.values(zone.items).forEach((item, idx) => {
+          if (item.name === "Desinfetante"){
+            i_idx = idx;
+          }
+        });
+
+        const currentvalue = zone.items[i_idx].last + value;
+        const now = Date.now();
+        zone.items[i_idx].values.push({
+          value: currentvalue,
+          timestamp: now
+        });
+
+        zone.items[i_idx].last = currentvalue;
+      });
+    } catch (e) {
+      console.log(`${zone.name} has no push button attached`);
+    }
 
     // For all items inside the zone... lets create them :D
     for (let item of zone.items){
       // Creates a item in that zone
       createSensor(zone.name, item.name, item.periodicity);
-
-      /* FIXME Check if needed... (Sets periodicity listenners)
-      // Adds listener for items periodicity if zone is enabled
-      if (zone.enabled){
-        listeningPeriodicity(zone.name, item.name, function(new_periodicity){
-          console.log(new_periodicity);
-          if ((item.timeouts.id !== undefined) && !(isNaN(Number(new_periodicity)))){
-            clearInterval(item.timeouts.id);
-          }
-          item.timeouts.id = setInterval(item.timeouts.action, new_periodicity, zone.name, item.name);
-        });
-      }
-      // */
     }
   }
 
 }
-
-pushButton.watch((err, value) => {
-  if (err) {
-    throw err;
-  }
-
-  let count;
-  getZone('Leiria-Shopping/current', function(snapshot){
-    count = snapshot.toJSON();
-    count++;
-    console.log('count = ' + count);
-    updateZoneChild('Leiria-Shopping', 'current', count);
-  });
-});
 
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html');
@@ -257,53 +316,49 @@ app.get('/', (req, res) => {
 // Listen on port 8080
 http.listen(port, function (error) {
   if (error) {
-    console.log('Something went wrong', error);
+    console.log('Something went wrong ', error);
   }else {
-    console.log('Server is listening on port' + port);
+    console.log('Server is listening on port ' + port);
   }
 });
 
+
 // WebSocket Connection
 io.on('connection', function (socket) {
-  let buttonState = 0; //variable to store button state
-  let buttonread = 0;
+  socket.on('newsensoreg', function (zoneName, sensorName) {
 
-  socket.on('inout', function (direction, zoneName) { //get button state from client
-    console.log(zoneName);
-    getZone(zoneName, function(snapshot){
-      console.log(snapshot.toJSON());
-      count = snapshot;
-      count += direction;
-      updateZoneChild(zoneName, direction, count);
+    let z_idx;
+    let i_idx;
+    Object.values(zones).forEach((zone, idx) => {
+      if (zone.name === zoneName){
+        z_idx = idx;
+        Object.values(zone.items).forEach((item, idx) => {
+          if (item.name === sensorName){
+            i_idx = idx;
+          }
+        });
+      }
     });
-  });
 
-  socket.on('newsensoreg', function (zoneName, sensor, value) {
-      localsDatas.push(value);
-  });
-
-  socket.on('read', function(zoneName) {
-    getZone(zoneName, callback);
-    updatePeriodicitySensor(zonename, 'Entrada');
-  });
-
-  socket.on('update', function (zoneName, fieldId, value) {
-    updateZoneChild(zoneName, fieldId,  value);
-  })
-
-  socket.on('create', function (zoneName) {
-    createZone(zoneName);
-    let sensorsNames = Object.keys(sensors);
-    let s;
-    for (s in sensorsNames){
-      createSensor(zoneName, sensorsNames[s]);
+    // Increment or decrement current
+    if (sensorName === "Entrada" || sensorName === "Saída") {
+      if (sensorName === "Entrada") {
+        zones[z_idx].current++;
+      } else {
+        zones[z_idx].current--;
+      }
     }
-  })
 
-  socket.on('deletezone', function(zoneName) {
-    deleteZone(zoneName);
+    const value = zones[z_idx].items[i_idx].last + 1;
+    const now = Date.now();
+
+    zones[z_idx].items[i_idx].values.push({
+      value: value,
+      timestamp: now
+    });
+
+    zones[z_idx].items[i_idx].last = value;
   });
-
 });
 
 initialization();
@@ -311,10 +366,13 @@ initialization();
 //on ctrl+c
 process.on('SIGINT',
     function () {
-  LEDred.writeSync(0); // Turn LED off
-  LEDred.unexport(); // Unexport LED GPIO to free resources
-  LEDgreen.writeSync(0); // Turn LED off
-  LEDgreen.unexport(); // Unexport LED GPIO to free resources
-  pushButton.unexport(); // Unexport Button GPIO to free resources
-  process.exit(); //exit completely
-});
+      for (let zone of zones){
+        zone.ledRed.writeSync(0); // Turn LED off
+        zone.ledRed.unexport(); // Unexport LED GPIO to free resourcesc
+        zone.ledGreen.writeSync(0); // Turn LED off
+        zone.ledGreen.unexport(); // Unexport LED GPIO to free resources
+        zone.pushBtn.unexport(); // Unexport Button GPIO to free resources
+      }
+
+      process.exit(); //exit completely
+    });
