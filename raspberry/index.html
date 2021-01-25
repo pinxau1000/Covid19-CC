@@ -53,32 +53,26 @@
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
-    var socket = io(); //load socket.io-client and connect to the host
+    let socket = io(); //load socket.io-client and connect to the host
 
-    /*
-    var zone_ = "IPLeiria"; //default zone
-    function getSelectedText(sel) {
-        var zone_ = sel.options[sel.selectedIndex].text;
-    }
-     */
 
     function input() {
         let zone_ = document.getElementById("zone").value;
-        socket.emit("inout", 1, zone_); //send button state to server
-        socket.emit("newsensoreg", zone_, "Entrada", 1);
+        //socket.emit("inout", zone_, "Entrada"); //send button state to server
+        socket.emit("newsensoreg", zone_, "Entrada");
         console.log(zone_ + " Entrada");
     }
 
     function output() {
         let zone_ = document.getElementById("zone").value;
-        socket.emit("inout", -1, zone_); //send button state to server
-        socket.emit("newsensoreg", zone_, "Saida", 1);
+        //socket.emit("inout", zone_, "Saída"); //send button state to server
+        socket.emit("newsensoreg", zone_, "Saída");
         console.log(zone_ + " Saída");
     }
 
     function desinfect() {
         let zone_ = document.getElementById("zone").value;
-        socket.emit("newsensoreg", zone_, "Desinfetante", 1);
+        socket.emit("newsensoreg", zone_, "Desinfetante");
         console.log(zone_ + " Desinfeção");
     }
 

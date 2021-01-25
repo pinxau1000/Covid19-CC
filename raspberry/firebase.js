@@ -7,7 +7,7 @@ require("firebase/database");
 
 
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
+var firebaseConfig = {
   apiKey: "AIzaSyDHfKSAV_fvF0CYbG21MLYbITUwVFFzTuc",
   authDomain: "meecad-covid19-cc.firebaseapp.com",
   databaseURL: "https://meecad-covid19-cc-default-rtdb.europe-west1.firebasedatabase.app",
@@ -26,6 +26,7 @@ const valuesRef = database.ref("values");
 
 
 module.exports = function () {
+
     /**
      * https://firebase.google.com/docs/reference/node/firebase.database.Reference#set
      * For testing purposes the ID is random and must be defined on the
@@ -48,7 +49,7 @@ module.exports = function () {
      * @param current The current number of people in the zone. Default to 0.
      * @param max The max number of people allowed in the zone. Default to 0.
      */
-    this.createZone = function (zoneName, successCallback, failureCallback, current = 0, max = 0) {
+    this.createZone = function (zoneName, successCallback, failureCallback, current = 0, max = 5) {
         // successCallback is optional
         successCallback = (typeof (successCallback) !== "function") ? function (value) {
             return value
@@ -139,7 +140,7 @@ module.exports = function () {
 
         zonesRef.child(zoneName).remove()
             .then(function () {
-                database.ref("_secrets").child(zoneName).remove()
+                valuesRef.child(zoneName).remove()
                     .then(successCallback)
                     .catch(error => failureCallback(error));
             })
@@ -532,47 +533,95 @@ module.exports = function () {
             .then(result => successCallback(result))
             .catch(error => failureCallback(error));
     }
+
+
+    /* FIXME INITIALIZATION
+    createZone("Cozinha");
+    createSensor("Cozinha", "Temperatura");
+    createSensor("Cozinha", "Humidade");
+    createSensor("Cozinha", "Entradas");
+    createSensor("Cozinha", "Saídas");
+
+    createZone("Wall Entrada");
+    createSensor("Wall Entrada", "Entradas");
+    createSensor("Wall Entrada", "Saídas");
+    createSensor("Wall Entrada", "Desinfetante");
+
+    createZone("Sala");
+    createSensor("Sala", "Luminosidade");
+    createSensor("Sala", "Temperatura");
+
+    createZone("Quarto");
+    createSensor("Quarto", "Luminosidade");
+    createSensor("Quarto", "Temperatura");
+
+
+
+    function emulateValueAcquisition() {
+        newSensorValueNow("Cozinha", "Temperatura", Math.random());
+        newSensorValueNow("Cozinha", "Humidade", Math.random());
+        newSensorValueNow("Cozinha", "Entradas", Math.random());
+        newSensorValueNow("Cozinha", "Saídas", Math.random());
+
+        newSensorValueNow("Wall Entrada", "Entradas", Math.random());
+        newSensorValueNow("Wall Entrada", "Saídas", Math.random());
+        newSensorValueNow("Wall Entrada", "Desinfetante", Math.random());
+        newSensorValueNow("Cozinha", "Saídas", Math.random());
+
+        newSensorValueNow("Sala", "Luminosidade", Math.random());
+        newSensorValueNow("Sala", "Temperatura", Math.random());
+
+        newSensorValueNow("Quarto", "Luminosidade", Math.random());
+
+        setTimeout(emulateValueAcquisition, Math.round(Math.random() * 10000));
+    }
+
+    emulateValueAcquisition();
+    */
 }
 
-/* Function List
-database,
-// Zones
-createZone,
-getZone,
-getAllZones,
-deleteZone,
+/*
+// Initialize and Export Firebase
+export {
+    database,
+    // Zones
+    createZone,
+    getZone,
+    getAllZones,
+    deleteZone,
 
-// Sensors
-createSensor,
-getSensor,
-getAllSensors,
-deleteSensor,
-getSensorLastUpdate,        // Gets the last timestamp of a sensor update
-newSensorValue,             // Pushes a new value with a given timestamp
-newSensorValueNow,          // Pushes a new value with the current timestamp
-updatePeriodicitySensor,    // Sets a new value on periodicity
-getPeriodicitySensor,       // Gets periodicity value of a sensor
+    // Sensors
+    createSensor,
+    getSensor,
+    getAllSensors,
+    deleteSensor,
+    getSensorLastUpdate,        // Gets the last timestamp of a sensor update
+    newSensorValue,             // Pushes a new value with a given timestamp
+    newSensorValueNow,          // Pushes a new value with the current timestamp
+    updatePeriodicitySensor,    // Sets a new value on periodicity
+    getPeriodicitySensor,       // Gets periodicity value of a sensor
 
-// Update and Gets for global zone properties
-updateZoneChild,
-getZoneChild,
-getName,
-updateCurrent,
-getCurrent,
-updateMax,
-getMax,
-updateEnabled,
-getEnabled,
-incrementCurrent,       // Increment/Decrement Current Value by N units
-updateZoneChilds, // Updates multiple values at once using JSON syntax.
+    // Update and Gets for global zone properties
+    updateZoneChild,
+    getZoneChild,
+    getName,
+    updateCurrent,
+    getCurrent,
+    updateMax,
+    getMax,
+    updateEnabled,
+    getEnabled,
+    incrementCurrent,       // Increment/Decrement Current Value by N units
+    updateZoneChilds, // Updates multiple values at once using JSON syntax.
 
-// Filter Sensor Values
-getFirstValues,         // Gets the first values pushed to the sensor
-getLastValues,          // Gets the last values pushed to the sensor
-getRangeValuesTimestamp,// Gets the values between two timestamps
+    // Filter Sensor Values
+    getFirstValues,         // Gets the first values pushed to the sensor
+    getLastValues,          // Gets the last values pushed to the sensor
+    getRangeValuesTimestamp,// Gets the values between two timestamps
 
-// listening
-listeningAllZones,
-listeningEnabled,
-listeningPeriodicity
+    // listening
+    listeningAllZones,
+    listeningEnabled,
+    listeningPeriodicity
+}
 */
