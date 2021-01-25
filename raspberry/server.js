@@ -46,10 +46,9 @@ http.listen(port, function (error) {
 
 
 let callback = function(snapshot) {
-  const data = snapshot.toJSON();
-  console.log(data);
+  data = snapshot;
+  console.log(snapshot.current);
   zoneName = data.name;
-  //console.log(data);
   if (data.current >= data.max)  {
     LEDred.writeSync(1);
     LEDgreen.writeSync(0);
@@ -60,9 +59,9 @@ let callback = function(snapshot) {
   let [hour, minute, second] = new Date().toLocaleTimeString('en-US').split(/:| /);
   setTimeout(getZone, getperiod, zoneName, callback);
   console.log(zoneName);
-  console.log('Periodicity: ' + time + 's')
-  console.log('Lotação máxima: ' + data.max);
+  //console.log('Periodicity: ' + getperiod/1000 + 's')
   console.log('Lotação atual: ' + data.current);
+  console.log('Lotação máxima: ' + data.max);
   console.log(hour + ':' + minute + ':' + second);
   console.log('');
 }
@@ -90,12 +89,20 @@ pushButton.watch((err, value) => {
   if (err) {
     throw err;
   }
-  var count;
-  getZone('Leiria-Shopping/current', function(snapshot){
-    count = snapshot.toJSON();
-    count++;
-    console.log('count = ' + count);
-    updateZoneChild('Leiria-Shopping', 'current', count);
+  let zone = Object.keys(zones)[0]
+  let sensor = Object.keys(sensors)[2]
+  getLastValues(zone, sensor, 1, function(data) {
+    console.log('pass0');
+    console.log(data);
+    if (data != null) {
+      console.log('pass1');
+      let countdesinfect = Object.values(data)[0].value;
+      countdesinfect++;
+      newSensorValueNow(zone, sensor, countdesinfect);
+    }
+    else{
+      newSensorValueNow(zone, sensor, 1);
+    }
   });
 });
 
@@ -105,12 +112,11 @@ function startWebServer() {
   let sensorsNames = Object.keys(sensors);
   let z;
   let s;
-  var current = 0;
-  var max = 5;
   for (z in zonesNames) {
-    createZone(zonesNames[z], current, max);
+    createZone(zonesNames[z]);
     for (s in sensorsNames) {
       createSensor(zonesNames[z], sensorsNames[s]);
+      //newSensorValueNow(zonesNames[z], sensorsNames[s], 0);
       /*
       listeningPeriodicity(zonesNames[z], sensorsNames[s], data => {
         updatePeriodicity(data, zonesNames[z], sensorsNames[s]);
@@ -127,21 +133,33 @@ function startWebServer() {
 
 // WebSocket Connection
 io.on('connection', function (socket) {
-  var buttonState = 0; //variable to store button state
-  var buttonread = 0;
 
-  socket.on('inout', function (direction, zoneName) { //get button state from client
-    console.log(zoneName);
-    getZone(zoneName, function(snapshot){
-      console.log(snapshot.toJSON());
-      count = snapshot;
-      count += direction;
-      updateZoneChild(zoneName, direction, count);
-    });
+  socket.on('inout', function (zoneName, direction) { //get button state from client
+
   });
 
   socket.on('newsensoreg', function (zoneName, sensor, value) {
-      localsDatas.push(value);
+      //localsDatas.push(value);
+    if (sensor == "Entrada" || sensor == "Saída") {
+      getCurrent(zoneName, function (current) {
+        let curr = 0;
+        if (sensor == "Entrada"){
+          curr = current + 1;
+        } else {
+          curr = current - 1;
+        }
+        updateCurrent(zoneName, curr);
+      });
+    }
+    getLastValues(zoneName, sensor, 1, function(data) {
+      if (data != null) {
+        let sum = Object.values(data)[0].value;
+        sum++;
+        newSensorValueNow(zoneName, sensor, sum);
+      } else {
+        newSensorValueNow(zoneName, sensor, 1);
+      }
+    });
   });
 
   socket.on('read', function(zoneName) {
