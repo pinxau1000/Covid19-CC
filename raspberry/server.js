@@ -8,89 +8,225 @@ const port = 8080;
 const LEDred = new Gpio(4, 'out');  //declare GPIO4 an output
 const LEDgreen = new Gpio(3, 'out'); //declare GPIO3 an output
 const pushButton = new Gpio(17, 'in', 'rising', {debounceTimeout: 10});
-//defaults
-//const zonesNames = ['IPLeiria', 'Biblioteca'];
-//const sensorsNames = ['Entrada', 'Saida', 'Desinfetante'];
-let localsDatas = [];
-let firebase = require('./firebase.js')();
+const fb = require('firebase');
 
-let getperiod = 5000;
-
-
-let zones = {
-  Biblioteca: {},
-  IPLeiria: {}
+function compareCapacitySetLed(zone){
+  fb.getZone(zone.name, dataSnapshot => {
+    let zoneRemote = dataSnapshot.toJSON();
+    if (zoneRemote===null){
+      // Disabled the LED on fail if zone didn't exists!
+      zone.ledRed.writeSync(0);
+      zone.ledGreen.writeSync(0);
+    } else {
+      if (zone.current >= zone.max)  {
+        zone.ledRed.writeSync(1);
+        zone.ledGreen.writeSync(0);
+      } else {
+        zone.ledRed.writeSync(0);
+        zone.ledGreen.writeSync(1);
+      }
+    }
+  },
+      function(){
+    // Disabled the LED on fail!
+    zone.ledRed.writeSync(0);
+    zone.ledGreen.writeSync(0);
+      }
+  );
 }
 
-let sensors = {
-  Entrada: {},
-  Saída: {},
-  Desinfetante: {}
+function setSensorsPeriodocityTimeout(zone, item){
+  // Attach a listener on periodicity
+  fb.listeningPeriodicity(zone.name, item.name,
+      function (new_periodicity) {
+    // If the periodicity value is a number and there are already defined
+    // timeouts then clear the old timeout and add new one with the
+    // updated value.
+    if ((item.timeouts.id !== undefined) && !(isNaN(Number(new_periodicity)))) {
+      clearInterval(item.timeouts.id);
+    }
+    item.timeouts.id = setInterval(item.timeouts.action, new_periodicity, zone, item);
+  });
+
+  console.log("--------------------------------------------------------")
+  console.log('Periodicity: ' + zone.periodicity)
+  console.log('Max: ' + zone.max);
+  console.log('Atual: ' + zone.current);
+  console.log(new Date().toLocaleTimeString('en-US').slice(0, -3));
+  console.log("--------------------------------------------------------")
+
 }
 
-app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/index.html');
-});
 
-
-
-// Listen on port 8080
-http.listen(port, function (error) {
-  if (error) {
-    console.log('Something went wrong', error);
-  }else {
-    console.log('Server is listening on port ' + port);
-    console.log('');
+/**
+ * Sensors in each zone
+ */
+let sensors = [
+  {
+    name: "Entrada",
+    periodicity: Math.round(Math.random()*10/10),
+    timeouts: {
+      id: undefined,
+      action: function(zone, item){
+        fb.newSensorValueNow(zone.name, item.name, 1);
+      }
+    }
+  },
+  {
+    name: "Saída",
+    periodicity: Math.round(Math.random()*10/10),
+    timeouts: {
+      id: undefined,
+      action: function(zone, item){
+        fb.newSensorValueNow(zone.name, item.name, 2);
+      }
+    }
+  },
+  {
+    name: "Desinfetante",
+    periodicity: Math.round(Math.random()*10/10),
+    timeouts: {
+      id: undefined,
+      action: function(zone, item){
+        fb.newSensorValueNow(zone.name, item.name, 3);
+      }
+    }
   }
-});
+]
 
-
-let callback = function(snapshot) {
-  const data = snapshot.toJSON();
-  console.log(data);
-  zoneName = data.name;
-  //console.log(data);
-  if (data.current >= data.max)  {
-    LEDred.writeSync(1);
-    LEDgreen.writeSync(0);
-  } else {
-    LEDred.writeSync(0);
-    LEDgreen.writeSync(1);
+/**
+ * All zones in this raspberry
+ */
+let zones = [
+  {
+    name: "Biblioteca",
+    current: 0,
+    max: 40,
+    enabled: true,
+    items: sensors,
+    ledRed: new Gpio(4, 'out'),
+    ledGreen: new Gpio(3, 'out'),
+    timeouts: {
+      id: undefined,
+      action: function (zone) {
+        compareCapacitySetLed();
+      }
+    }
+  },
+  {
+    name: "Sala Robotica",
+    current: 0,
+    max: 10,
+    enabled: true,
+    items: sensors,
+    ledRed: "id-some-html-element",
+    ledGreen: "id-some-html-element",
+    timeouts: {
+      id: undefined,
+      action: function (zone) {
+        compareCapacitySetLed(zone);
+      }
+    }
+  },
+  {
+    name: "Sala Informática",
+    current: 0,
+    max: 15,
+    enabled: true,
+    items: sensors,
+    ledRed: "id-some-html-element",
+    ledGreen: "id-some-html-element",
+    timeouts: {
+      id: undefined,
+      action: function (zone) {
+        compareCapacitySetLed(zone);
+      }
+    }
   }
-  let [hour, minute, second] = new Date().toLocaleTimeString('en-US').split(/:| /);
-  setTimeout(getZone, getperiod, zoneName, callback);
-  console.log(zoneName);
-  console.log('Periodicity: ' + time + 's')
-  console.log('Lotação máxima: ' + data.max);
-  console.log('Lotação atual: ' + data.current);
-  console.log(hour + ':' + minute + ':' + second);
-  console.log('');
+]
+
+
+// FIXME Check if function is needed
+function writeLedStatus(led, value) {
+  if (led instanceof Gpio) {
+    led.writeSync(value);
+
+    /* TODO HTML Elements
+    } else if (typeof(led) === typeof(String)) {
+      if (value === 1) {
+        $("led").css("color", value);
+      } else {
+        $("led").css("color", "black");
+      }
+    }
+    // */
+  }
 }
 
-let sendSensorsAllValues = function (data, zoneName, sensorName) {
-  for (let localData in localsDatas.length){
-    newSensorValue(zoneName, sensorsName, localData.value, localData.timestamp)
-  }
-  localsDatas = [];
-}
+function initialization(){
+  for (let zone in zones){
+    // Creates a zone
+    fb.createZone(zone.name);
 
-let timeOutIDs = [];
-let updatePeriodicity = function (data, zoneName, sensorName) {
-  let zID = zonesNames.indexOf(zoneName);
-  let sID = sensorsNames.indexOf(sensorName);
-  if (timeOutIDs.length!=0){
-    clearTimeout(timeOutIDs[zID][sID]);
-  }
-  timeOutIDs.push(setTimeout(sendSensorsAllValues, Number(data), data, zoneName, sensorName));
-  console.log(`Timeout ${timeOutIDs[zID][sID]} set to ${Number(data)}`);
-}
+    // Create listener for enabled change, so that periodicity's can be
+    // changed accordingly. LEDS are also affected by enabled state.
+    fb.listeningEnabled(zone.name, function(value){
+      if (value){
+        // Enables timeout for periodicity on all sensors with zone is enabled
+        Object.values(zone.items).forEach(item => {
+          setSensorsPeriodocityTimeout(zone, item)
+        });
 
+        // Creates timeout that read from time to time the current and total
+        // value to update the LED value
+        zone.timeouts.id = setInterval(zone.timeouts.action, 5000, zone);
+
+      } else {
+        // Disables timeout for periodicity on all sensors with zone is disabled
+        Object.values(zone.items).forEach(item => {
+          clearInterval(item.timeouts.id);
+          item.timeouts.id = undefined;
+        });
+
+        // Creates timeout that read from time to time the current and total
+        // value to update the LED value
+        clearInterval(zone.timeouts.id);
+        zone.timeouts.id = undefined;
+
+        // Also disabled the LEDs
+        zone.ledRed.writeSync(0);
+        zone.ledGreen.writeSync(0);
+      }
+    });
+
+    // For all items inside the zone... lets create them :D
+    for (let item in zone.items){
+      // Creates a item in that zone
+      fb.createSensor(zone.name, item.name);
+
+      /* FIXME Check if needed... (Sets periodicity listenners)
+      // Adds listener for items periodicity if zone is enabled
+      if (zone.enabled){
+        fb.listeningPeriodicity(zone.name, item.name, function(new_periodicity){
+          console.log(new_periodicity);
+          if ((item.timeouts.id !== undefined) && !(isNaN(Number(new_periodicity)))){
+            clearInterval(item.timeouts.id);
+          }
+          item.timeouts.id = setInterval(item.timeouts.action, new_periodicity, zone.name, item.name);
+        });
+      }
+      // */
+    }
+  }
+
+}
 
 pushButton.watch((err, value) => {
   if (err) {
     throw err;
   }
-  var count;
+
+  let count;
   getZone('Leiria-Shopping/current', function(snapshot){
     count = snapshot.toJSON();
     count++;
@@ -99,36 +235,23 @@ pushButton.watch((err, value) => {
   });
 });
 
+app.get('/', (req, res) => {
+  res.sendFile(__dirname + '/index.html');
+});
 
-function startWebServer() {
-  let zonesNames = Object.keys(zones);
-  let sensorsNames = Object.keys(sensors);
-  let z;
-  let s;
-  var current = 0;
-  var max = 5;
-  for (z in zonesNames) {
-    createZone(zonesNames[z], current, max);
-    for (s in sensorsNames) {
-      createSensor(zonesNames[z], sensorsNames[s]);
-      /*
-      listeningPeriodicity(zonesNames[z], sensorsNames[s], data => {
-        updatePeriodicity(data, zonesNames[z], sensorsNames[s]);
-      });
-
-       */
-      console.log(' - New ' + sensorsNames[s] + ' sensor!');
-    }
-    console.log('New zone with name: ' + zonesNames[z]);
-    setTimeout(getZone, getperiod, zonesNames[z], callback);
+// Listen on port 8080
+http.listen(port, function (error) {
+  if (error) {
+    console.log('Something went wrong', error);
+  }else {
+    console.log('Server is listening on port' + port);
   }
-}
-
+});
 
 // WebSocket Connection
 io.on('connection', function (socket) {
-  var buttonState = 0; //variable to store button state
-  var buttonread = 0;
+  let buttonState = 0; //variable to store button state
+  let buttonread = 0;
 
   socket.on('inout', function (direction, zoneName) { //get button state from client
     console.log(zoneName);
@@ -168,12 +291,11 @@ io.on('connection', function (socket) {
 
 });
 
-
-startWebServer();
-
+initialization();
 
 //on ctrl+c
-process.on('SIGINT', function () {
+process.on('SIGINT',
+    function () {
   LEDred.writeSync(0); // Turn LED off
   LEDred.unexport(); // Unexport LED GPIO to free resources
   LEDgreen.writeSync(0); // Turn LED off
