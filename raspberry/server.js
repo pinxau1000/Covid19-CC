@@ -28,7 +28,7 @@ function compareCapacitySetLed(zone){
             }
           }
         }catch (err){
-          // When ledGreen or ledRed is String!
+          // When ledGreen or ledRed are not GPIO instances!
         }
       },
       function(){
@@ -37,7 +37,7 @@ function compareCapacitySetLed(zone){
           zone.ledRed.writeSync(0);
           zone.ledGreen.writeSync(0);
         }catch (err){
-          console.log(`error2 ${zone.name}`)
+          // When ledGreen or ledRed are not GPIO instances!
         }
       }
   );
@@ -73,17 +73,19 @@ function setSensorsPeriodocityTimeout(zone, item){
 const itemaction = function(zone, item, period){
   Object.values(item.values).forEach(entry => {
     newSensorValue(zone.name, item.name, entry.value, entry.timestamp, function(){
-      console.log(`\t - ${item.name}: ${entry.value}`);
+      // console.log(`\t - ${item.name}: ${entry.value}`);
       item.values = [];
     });
   })
 }
 
 const zoneaction = function (zone) {
-  updateCurrent(zone.name, zone.current, function(){
-    console.log(` - ${zone.name}: ${zone.current}`);
-  });
-  compareCapacitySetLed(zone);
+  if(zone.enabled){
+    updateCurrent(zone.name, zone.current, function(){
+        // console.log(` - ${zone.name}: ${zone.current}`);
+    });
+    compareCapacitySetLed(zone);
+  }
 }
 
 /**
@@ -242,6 +244,9 @@ function initialization(){
     // Create listener for enabled change, so that periodicity's can be
     // changed accordingly. LEDS are also affected by enabled state.
     listeningEnabled(zone.name, function(value){
+      // Update local status
+      zone.enabled = value;
+
       if (value){
         // Enables timeout for periodicity on all sensors with zone is enabled
         Object.values(zone.items).forEach(item => {
@@ -252,6 +257,10 @@ function initialization(){
         // value to update the LED value
         zone.timeouts.id = setInterval(zone.timeouts.action, 5000, zone);
 
+        // Limpa o histórico de valores
+        zone.items.forEach(item => {
+          item.values = [];
+        });
       } else {
         // Disables timeout for periodicity on all sensors with zone is disabled
         Object.values(zone.items).forEach(item => {
@@ -267,9 +276,6 @@ function initialization(){
         // Also disabled the LEDs
         zone.ledRed.writeSync(0);
         zone.ledGreen.writeSync(0);
-
-        // Limpa o histórico de valores
-        item.values = [];
       }
     });
 
@@ -280,24 +286,26 @@ function initialization(){
           throw err;
         }
 
-        let i_idx;
-        Object.values(zone.items).forEach((item, idx) => {
-          if (item.name === "Desinfetante"){
-            i_idx = idx;
-          }
-        });
+        if (zone.enabled) {
+          let i_idx;
+          Object.values(zone.items).forEach((item, idx) => {
+            if (item.name === "Desinfetante"){
+              i_idx = idx;
+            }
+          });
 
-        const currentvalue = zone.items[i_idx].last + value;
-        const now = Date.now();
-        zone.items[i_idx].values.push({
-          value: currentvalue,
-          timestamp: now
-        });
+          const currentvalue = zone.items[i_idx].last + value;
+          const now = Date.now();
+          zone.items[i_idx].values.push({
+            value: currentvalue,
+            timestamp: now
+          });
 
-        zone.items[i_idx].last = currentvalue;
+          zone.items[i_idx].last = currentvalue;
+        }
       });
     } catch (e) {
-      console.log(`${zone.name} has no push button attached`);
+      // When push button is not a GPIO instance
     }
 
     // For all items inside the zone... lets create them :D
@@ -306,7 +314,6 @@ function initialization(){
       createSensor(zone.name, item.name, item.periodicity);
     }
   }
-
 }
 
 app.get('/', (req, res) => {
@@ -340,24 +347,26 @@ io.on('connection', function (socket) {
       }
     });
 
-    // Increment or decrement current
-    if (sensorName === "Entrada" || sensorName === "Saída") {
-      if (sensorName === "Entrada") {
-        zones[z_idx].current++;
-      } else {
-        zones[z_idx].current--;
+    if (zones[z_idx].enabled) {
+      // Increment or decrement current
+      if (sensorName === "Entrada" || sensorName === "Saída") {
+        if (sensorName === "Entrada") {
+          zones[z_idx].current++;
+        } else {
+          zones[z_idx].current--;
+        }
       }
+
+      const value = zones[z_idx].items[i_idx].last + 1;
+      const now = Date.now();
+
+      zones[z_idx].items[i_idx].values.push({
+        value: value,
+        timestamp: now
+      });
+
+      zones[z_idx].items[i_idx].last = value;
     }
-
-    const value = zones[z_idx].items[i_idx].last + 1;
-    const now = Date.now();
-
-    zones[z_idx].items[i_idx].values.push({
-      value: value,
-      timestamp: now
-    });
-
-    zones[z_idx].items[i_idx].last = value;
   });
 });
 
