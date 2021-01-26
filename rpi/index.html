@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Covid19-CC</title>
+</head>
+
+<body>
+<h2>Registo de entradas e saídas</h2>
+<div>
+    <p>Selecionar ou Inserir Zona:</p>
+    <form action="" method="get">
+        <select name="selectzones" id="zone">
+            <option disabled>--Escolha uma zona--</option>
+            <option>Biblioteca</option>
+            <option>Refeitorio</option>
+            <option>Sala-Informatica</option>
+        </select>
+    </form>
+    <br><br>
+</div>
+
+<div>
+    <button type="button" id="stateon" onclick="input()" style="background-color:green;">Registar Entrada</button>
+    <button type="button" id="stateoff" onclick="output()" style="background-color:red;">Registar Saída</button>
+    <button type="button" id="desinfection" onclick="desinfect()" style="background-color:lightblue;">Registar
+        Desinfeção
+    </button>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    let socket = io(); //load socket.io-client and connect to the host
+    const selectElement = document.getElementById("zone");
+
+
+    function input() {
+        socket.emit("newsensoreg", selectElement.value, "Entrada");
+    }
+
+    function output() {
+        socket.emit("newsensoreg", selectElement.value, "Saída");
+    }
+
+    function desinfect() {
+        socket.emit("newsensoreg", selectElement.value, "Desinfetante");
+    }
+
+</script>
+</body>
+
+</html>
