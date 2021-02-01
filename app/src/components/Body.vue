@@ -2,6 +2,16 @@
   <v-main>
       <v-container>
         <v-row class="justify-center">
+          <v-col class="col-auto">
+            <v-card class="teal lighten-3">
+              <v-card-subtitle class="text-center">
+                 PROJECT IS IN
+              </v-card-subtitle>
+              <v-card-title class="text-center">
+                READ MODE
+              </v-card-title>
+            </v-card>
+          </v-col>
             <!-- A Zone component is added for each zone in the zones array -->
             <Zone v-for="zone in zonesLocal"
                   :key="zone.id"
