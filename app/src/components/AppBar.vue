@@ -7,7 +7,9 @@
         dark
         dense
     >
-      <v-toolbar-title class="mr-4 mr-sm-12">
+      <v-toolbar-title class="mr-4 mr-sm-12"
+                       v-on:click="openDialog()"
+      >
         {{ title }}
       </v-toolbar-title>
 
@@ -43,6 +45,9 @@ export default {
     },
     clearQuery: function() {
       this.searchQuery = "";
+    },
+    openDialog: function(){
+      window.alert("TODO $user Area!");
     }
   }
 }
